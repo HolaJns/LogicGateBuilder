@@ -1,13 +1,13 @@
 package com.logicgatebuilder.engine;
 
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-public class Source extends Block{
+public class Source extends Block {
     public Source(int x, int y) {
         this.input1 = null;
         this.input2 = null;
         this.output = false;
-        color = Color.BLACK;
         this.x = x;
         this.y = y;
     }
@@ -19,6 +19,12 @@ public class Source extends Block{
 
     @Override
     public String getType() {
-        return "Src";
+        return "Source";
+    }
+
+    @Override
+    public void draw(GraphicsContext gc) {
+        gc.setFill(Color.BLACK);
+        gc.fillRect(this.x-size/2, this.y-size/2, this.size, this.size);
     }
 }

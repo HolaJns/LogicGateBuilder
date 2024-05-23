@@ -1,6 +1,6 @@
 package com.logicgatebuilder.engine;
 
-import javafx.scene.paint.Color;
+import javafx.scene.canvas.GraphicsContext;
 
 public abstract class Block {
     protected boolean output;
@@ -8,7 +8,6 @@ public abstract class Block {
     protected Block input2;
     public int x,y;
     public int size = 50;
-    public static Color color;
 
     public Block(Block input1, Block input2, int x, int y) {
         this.input1 = input1;
@@ -35,6 +34,10 @@ public abstract class Block {
 
     public String getType() {
         return null;
+    }
+
+    public void draw(GraphicsContext gc) {
+        return;
     }
 
 

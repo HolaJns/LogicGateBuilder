@@ -11,7 +11,7 @@ import java.util.List;
 
 public class MainCanvas extends Canvas {
     private GraphicsContext graphics;
-    private String currentSelector = "Src";
+    private String currentSelector = "";
     public List blockMemory = new ArrayList();
     private Block movementPointer = null;
 
@@ -25,62 +25,54 @@ public class MainCanvas extends Canvas {
         addEventHandler(MouseEvent.MOUSE_MOVED, this::moveBlock);
     }
 
-
     //Place Block on mouse click based on currentSelector String. Can be values: "Src", "And", "Nand", "Or", "Nor", "Not" or "Xor"
     private void placeBlock(MouseEvent e) {
         switch (currentSelector) {
-            case "Src": {
+            case "Source": {
                 Block temp = new Source((int) e.getX(), (int) e.getY());
-                graphics.setFill(Color.BLACK);
-                graphics.fillRect(e.getX()-temp.size/2, e.getY()-temp.size/2, temp.size, temp.size);
-                blockMemory.add(new Source((int) e.getX(), (int) e.getY()));
+                temp.draw(graphics);
+                blockMemory.add(temp);
                 currentSelector = "";
                 break;
             }
             case "And": {
                 Block temp = new And(null,null,(int) e.getX(), (int) e.getY());
-                graphics.setFill(temp.color);
-                graphics.fillRect(e.getX()-temp.size/2, e.getY()-temp.size/2, temp.size, temp.size);
+                temp.draw(graphics);
                 blockMemory.add(temp);
                 currentSelector = "";
                 break;
             }
             case "Nand": {
                 Block temp = new Nand(null,null,(int) e.getX(), (int) e.getY());
-                graphics.setFill(temp.color);
-                graphics.fillRect(e.getX()-temp.size/2, e.getY()-temp.size/2, temp.size, temp.size);
+                temp.draw(graphics);
                 blockMemory.add(temp);
                 currentSelector = "";
                 break;
             }
             case "Or": {
                 Block temp = new Or(null,null,(int) e.getX(), (int) e.getY());
-                graphics.setFill(temp.color);
-                graphics.fillRect(e.getX()-temp.size/2, e.getY()-temp.size/2, temp.size, temp.size);
+                temp.draw(graphics);
                 blockMemory.add(temp);
                 currentSelector = "";
                 break;
             }
             case "Nor": {
                 Block temp = new Nor(null,null,(int) e.getX(), (int) e.getY());
-                graphics.setFill(temp.color);
-                graphics.fillRect(e.getX()-temp.size/2, e.getY()-temp.size/2, temp.size, temp.size);
+                temp.draw(graphics);
                 blockMemory.add(temp);
                 currentSelector = "";
                 break;
             }
-            case "not": {
+            case "Not": {
                 Block temp = new Not(null,(int) e.getX(), (int) e.getY());
-                graphics.setFill(temp.color);
-                graphics.fillRect(e.getX()-temp.size/2, e.getY()-temp.size/2, temp.size, temp.size);
+                temp.draw(graphics);
                 blockMemory.add(temp);
                 currentSelector = "";
                 break;
             }
             case "Xor": {
                 Block temp = new Xor(null,null,(int) e.getX(), (int) e.getY());
-                graphics.setFill(temp.color);
-                graphics.fillRect(e.getX()-temp.size/2, e.getY()-temp.size/2, temp.size, temp.size);
+                temp.draw(graphics);
                 blockMemory.add(temp);
                 currentSelector = "";
                 break;
@@ -110,10 +102,9 @@ public class MainCanvas extends Canvas {
     //OnMouseMove change coordinates of selected Block in blockMemory to current X and Y. Move Animation until Block is replaced with MouseClick
     private void moveBlock(MouseEvent e) {
         if (movementPointer != null) {
-            graphics.setFill(movementPointer.color);
             movementPointer.x = (int) e.getX();
             movementPointer.y = (int) e.getY();
-            graphics.fillRect(movementPointer.x, movementPointer.y, movementPointer.size, movementPointer.size);
+            movementPointer.draw(graphics);
             redrawCanvas();
         }
     }
@@ -124,8 +115,7 @@ public class MainCanvas extends Canvas {
         graphics.fillRect(0, 0, getWidth(), getHeight());
         for (Object block : blockMemory) {
             if(block instanceof Block) {
-                graphics.setFill(((Block) block).color);
-                graphics.fillRect(((Block) block).x- ((Block) block).size/2, ((Block) block).y-((Block) block).size/2, ((Block) block).size, ((Block) block).size);
+                ((Block) block).draw(graphics);
             }
         }
     }
