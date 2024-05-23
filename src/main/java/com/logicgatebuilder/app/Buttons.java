@@ -1,9 +1,7 @@
 package com.logicgatebuilder.app;
 
 import javafx.event.ActionEvent;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
-import javafx.scene.input.MouseEvent;
 
 
 public class Buttons extends Button {

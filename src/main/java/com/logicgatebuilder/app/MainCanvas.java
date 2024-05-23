@@ -25,7 +25,7 @@ public class MainCanvas extends Canvas {
         addEventHandler(MouseEvent.MOUSE_MOVED, this::moveBlock);
     }
 
-    //Place Block on mouse click based on currentSelector String. Can be values: "Src", "And", "Nand", "Or", "Nor", "Not" or "Xor"
+    //Place Block on mouse click based on currentSelector String. Can be values: "Source", "Output", "And", "Nand", "Or", "Nor", "Not" or "Xor"
     private void placeBlock(MouseEvent e) {
         switch (currentSelector) {
             case "Source": {
@@ -77,8 +77,15 @@ public class MainCanvas extends Canvas {
                 currentSelector = "";
                 break;
             }
+            case "Output": {
+                Block temp = new Output(null,null,(int) e.getX(), (int) e.getY());
+                temp.draw(graphics);
+                blockMemory.add(temp);
+                currentSelector = "";
+            }
             default: {
                 initializeMovementPointer(e);
+                deleteBlockOnMouse(e);
                 break;
             }
         }
@@ -86,7 +93,7 @@ public class MainCanvas extends Canvas {
 
     //verify current mouse coordinates on click and sets movementPointer to selected Block, if coordinates match with a Block in blockMemory. Else: Set movementPointer to null
     private void initializeMovementPointer(MouseEvent e) {
-        if(movementPointer == null) {
+        if(movementPointer == null && e.isShiftDown()) {
             int currentX = (int) e.getX();
             int currentY = (int) e.getY();
             for (Object block : blockMemory) {
@@ -116,6 +123,22 @@ public class MainCanvas extends Canvas {
         for (Object block : blockMemory) {
             if(block instanceof Block) {
                 ((Block) block).draw(graphics);
+            }
+        }
+    }
+
+    public void deleteBlockOnMouse(MouseEvent e) {
+        if(movementPointer == null && e.isControlDown()) {
+            int currentX = (int) e.getX();
+            int currentY = (int) e.getY();
+            for (Object block : blockMemory) {
+                if (block instanceof Block) {
+                    if (currentX >= ((Block) block).x - ((Block) block).size / 2 && currentX <= ((Block) block).x + ((Block) block).size / 2 && currentY >= ((Block) block).y - ((Block) block).size / 2 && currentY <= ((Block) block).y + ((Block) block).size / 2) {
+                        blockMemory.remove(block);
+                        redrawCanvas();
+                        break;
+                    }
+                }
             }
         }
     }
