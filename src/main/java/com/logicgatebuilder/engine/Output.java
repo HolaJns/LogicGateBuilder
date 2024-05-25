@@ -4,8 +4,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class Output extends Block {
-    public Output(Block input1, Block input2, int x, int y) {
-        super(input1, input2, x, y);
+    public Output(int x, int y) {
+        super(x, y);
     }
 
     @Override
@@ -15,7 +15,11 @@ public class Output extends Block {
 
     @Override
     public void draw(GraphicsContext gc) {
+        if(input1 != null) calculateOutput();
         gc.setFill(Color.GRAY);
+        if(this.input1 != null) if(this.input1.output) gc.setFill(Color.CYAN);
         gc.fillRect(this.x-size/2, this.y-size/2, this.size, this.size);
+        gc.setFill(Color.BLACK);
+        gc.strokeRect(this.x-size/2, this.y-size/2, this.size, this.size);
     }
 }

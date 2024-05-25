@@ -5,9 +5,7 @@ import javafx.scene.paint.Color;
 
 public class Source extends Block {
     public Source(int x, int y) {
-        this.input1 = null;
-        this.input2 = null;
-        this.output = false;
+        this.output = true;
         this.x = x;
         this.y = y;
     }
@@ -24,7 +22,11 @@ public class Source extends Block {
 
     @Override
     public void draw(GraphicsContext gc) {
-        gc.setFill(Color.BLACK);
+        if(input1 != null) calculateOutput();
+        if(this.output) gc.setFill(Color.YELLOW);
+        else gc.setFill(Color.WHITE);
         gc.fillRect(this.x-size/2, this.y-size/2, this.size, this.size);
+        gc.setFill(Color.BLACK);
+        gc.strokeRect(this.x-size/2, this.y-size/2, this.size, this.size);
     }
 }

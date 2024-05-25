@@ -10,6 +10,7 @@ module com.example.logicgatebuilder {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+    requires java.desktop;
 
     opens com.logicgatebuilder to javafx.fxml;
     //exports com.logicgatebuilder;

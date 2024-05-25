@@ -14,6 +14,10 @@ public class Buttons extends Button {
     }
 
     public void Click(ActionEvent event) {
-        Application.canvas.setCurrentSelector(type);
+        if(!this.type.equals("String") && !this.type.equals("Reset")) {
+            Application.canvas.setCurrentSelector(type);
+        }
+        else if(this.type.equals("String")) Application.canvas.listBlocks();
+        else if(this.type.equals("Reset")) Application.canvas.resetCanvas();
     }
 }

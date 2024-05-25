@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 public class Application extends javafx.application.Application {
     private BorderPane root;
     public static MainCanvas canvas;
-    private Button AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton;
+    private Button AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ConnectionButton, String, Reset;
 
     @Override
     public void start(Stage stage) {
@@ -25,11 +25,14 @@ public class Application extends javafx.application.Application {
         NotButton = new Buttons("Not");
         SourceButton = new Buttons("Source");
         OutputButton = new Buttons("Output");
-        Scene scene = new Scene(root, 1000, 1000);
+        ConnectionButton = new Buttons("Connection");
+        String = new Buttons("String");
+        Reset = new Buttons("Reset");
+        Scene scene = new Scene(root, 1000, 1200);
         scene.setFill(Color.rgb(150,150,160));
         VBox layout = new VBox(0);
         layout.setPadding(new Insets(200));
-        layout.getChildren().addAll(canvas, AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton);
+        layout.getChildren().addAll(canvas, AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ConnectionButton, String, Reset);
         root.setCenter(layout);
         stage.setTitle("LogicGate Builder");
         stage.setScene(scene);
