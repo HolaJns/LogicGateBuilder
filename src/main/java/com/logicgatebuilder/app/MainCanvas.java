@@ -3,6 +3,7 @@ package com.logicgatebuilder.app;
 import com.logicgatebuilder.engine.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
@@ -87,19 +88,28 @@ public class MainCanvas extends Canvas {
                 break;
             }
             case "Connection": {
+                if(startSelected && e.getButton() == MouseButton.SECONDARY) {
+                    currentSelector = "";
+                    movementPointer = null;
+                    startSelected = false;
+                }
                 if(startSelected) {
                     redrawCanvas();
-                    ((Connection) movementPointer).setEnd((int) e.getX(), (int) e.getY());
-                    movementPointer.draw(graphics);
-                    startSelected = false;
-                    blockMemory.add(movementPointer);
-                    initConnection((Connection) movementPointer);
-                    movementPointer = null;
-                    currentSelector = "";
+                    Block block = checkInside((int)e.getX(),(int)e.getY());
+                    if(block != null) {
+                        ((Connection) movementPointer).setEnd(block);
+                        movementPointer.draw(graphics);
+                        startSelected = false;
+                        blockMemory.add(movementPointer);
+                        initConnection((Connection) movementPointer);
+                        movementPointer = null;
+                        currentSelector = "";
+                    }
                 } else {
                     movementPointer = new Connection();
-                    if(checkInside((int)e.getX(),(int)e.getY()) != null) {
-                        ((Connection) movementPointer).setStart((int) e.getX(), (int) e.getY());
+                    Block block = checkInside((int)e.getX(),(int)e.getY());
+                    if(block != null) {
+                        ((Connection) movementPointer).setStart(block);
                         startSelected = true;
                     }
                 }
@@ -116,6 +126,7 @@ public class MainCanvas extends Canvas {
                 break;
             }
         }
+        refreshAllOutputs();
         redrawCanvas();
     }
 
@@ -137,10 +148,9 @@ public class MainCanvas extends Canvas {
         }
         else if(currentSelector.equals("Connection") && startSelected) {
             redrawCanvas();
-            if(checkInside((int)e.getX(),(int)e.getY()) != null) {
-                ((Connection) movementPointer).setEnd((int) e.getX(), (int) e.getY());
-                movementPointer.draw(graphics);
-            }
+            ((Connection)movementPointer).xEnd = (int) e.getX();
+            ((Connection)movementPointer).yEnd = (int) e.getY();
+            movementPointer.draw(graphics);
         }
     }
 
@@ -150,7 +160,15 @@ public class MainCanvas extends Canvas {
         graphics.fillRect(0, 0, getWidth(), getHeight());
         for (Object block : blockMemory) {
             if(block instanceof Block) {
-                ((Block) block).draw(graphics);
+                if(((Block) block).getType().equals("Connection")) {
+                    ((Connection) block).refresh();
+                    ((Block) block).draw(graphics);
+                }
+            }
+        }
+        for (Object block : blockMemory) {
+            if(block instanceof Block) {
+                if(!((Block) block).getType().equals("Connection")) ((Block) block).draw(graphics);
             }
         }
     }
@@ -161,7 +179,7 @@ public class MainCanvas extends Canvas {
     }
 
     //collision detection. Check if currentCords are within one Block in blockMemory
-    private Block checkInside(int currentX, int currentY) {
+    private Block checkInside(double currentX, double currentY) {
         for (Object block : blockMemory) {
             if (block instanceof Block) {
                 if(Objects.equals(((Block) block).getType(), "Connection")) continue;
@@ -216,5 +234,17 @@ public class MainCanvas extends Canvas {
     public void resetCanvas() {
         blockMemory.clear();
         redrawCanvas();
+    }
+
+    private void refreshAllOutputs() {
+        for(int i = 0; i < 2; i++) {
+            for (Object block : blockMemory) {
+                if (block instanceof Block) {
+                    if (((Block) block).getType() != "Connection") {
+                        ((Block) block).calculateOutput();
+                    }
+                }
+            }
+        }
     }
 }

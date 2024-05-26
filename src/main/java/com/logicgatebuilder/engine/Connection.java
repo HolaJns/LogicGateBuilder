@@ -7,15 +7,25 @@ public class Connection extends Block {
 
     public int size = 10;
     public int xEnd, yEnd;
+    public Block startBlock, endBlock;
 
-    public void setStart(int xStart, int yStart) {
-        this.x = xStart;
-        this.y = yStart;
+    public void setStart(Block block) {
+        this.startBlock = block;
+        this.x = startBlock.x;
+        this.y = startBlock.y;
     }
 
-    public void setEnd(int xEnd, int yEnd) {
-        this.xEnd = xEnd;
-        this.yEnd = yEnd;
+    public void setEnd(Block block) {
+        this.endBlock = block;
+        this.xEnd = endBlock.x;
+        this.yEnd = endBlock.y;
+    }
+
+    public void refresh() {
+        this.x = startBlock.x;
+        this.y = startBlock.y;
+        this.xEnd = endBlock.x;
+        this.yEnd = endBlock.y;
     }
 
     @Override

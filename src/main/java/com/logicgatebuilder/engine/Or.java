@@ -2,6 +2,8 @@ package com.logicgatebuilder.engine;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 public class Or extends Block{
     public Or(int x, int y) {
@@ -10,7 +12,7 @@ public class Or extends Block{
 
     @Override
     public void calculateOutput() {
-        output = input1.output || input2.output;
+        if(input1 != null && input2 != null) output = input1.output || input2.output;
     }
 
     @Override
@@ -20,8 +22,12 @@ public class Or extends Block{
 
     @Override
     public void draw(GraphicsContext gc) {
-        if(input1 != null && input2 != null) calculateOutput();
+        calculateOutput();
         gc.setFill(Color.BLUE);
         gc.fillRect(this.x-size/2, this.y-size/2, this.size, this.size);
+        gc.setFill(Color.WHITE);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setFont(Font.font("Arial", 17));
+        gc.fillText("OR",this.x,this.y);
     }
 }
