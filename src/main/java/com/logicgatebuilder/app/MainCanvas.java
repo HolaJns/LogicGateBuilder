@@ -19,8 +19,8 @@ public class MainCanvas extends Canvas {
     private boolean startSelected = false;
 
     public MainCanvas() {
-        setWidth(600);
-        setHeight(600);
+        setWidth(800);
+        setHeight(800);
         graphics = getGraphicsContext2D();
         graphics.setFill(Color.WHITE);
         graphics.fillRect(0, 0, getWidth(), getHeight());
@@ -108,7 +108,7 @@ public class MainCanvas extends Canvas {
                 } else {
                     movementPointer = new Connection();
                     Block block = checkInside((int)e.getX(),(int)e.getY());
-                    if(block != null) {
+                    if(block != null && !block.getType().equals("Output")) {
                         ((Connection) movementPointer).setStart(block);
                         startSelected = true;
                     }
@@ -118,10 +118,35 @@ public class MainCanvas extends Canvas {
             }
             default: {
                 initializeMovementPointer(e);
-                if(movementPointer != null && e.isControlDown()) deleteBlockOnMouse(movementPointer);
-                else if(movementPointer != null) if(Objects.equals(movementPointer.getType(), "Source") && !e.isShiftDown() && !e.isControlDown()) {
-                    movementPointer.switchState();
-                    movementPointer = null;
+                if(movementPointer != null) {
+                    if(e.isControlDown()) {
+                        deleteBlockOnMouse(movementPointer);
+                        for(Object block: blockMemory) {
+                            if(block instanceof Block) {
+                                if(((Block) block).getType().equals("Connection")) {
+                                    if(((Connection) block).startBlock == movementPointer ||((Connection) block).endBlock == movementPointer) {
+                                        blockMemory.set(blockMemory.indexOf(block), null);
+                                    }
+                                }
+                                else {
+                                    if(((Block) block).input1 == movementPointer) ((Block) block).input1 = null;
+                                    if(((Block) block).input2 == movementPointer) ((Block) block).input2 = null;
+                                }
+                            }
+                        }
+                        blockMemory.remove(null);
+                        movementPointer = null;
+                        refreshAllOutputs();
+                    }
+                    else if(movementPointer.getType().equals("Source") && !e.isShiftDown() && !e.isControlDown()) {
+                        movementPointer.switchState();
+                        movementPointer = null;
+                    }
+                    else if (movementPointer != null && e.isShiftDown()) {
+                        blockMemory.remove(movementPointer);
+                        blockMemory.add(movementPointer);
+                    }
+                    else movementPointer = null;
                 }
                 break;
             }
@@ -140,13 +165,13 @@ public class MainCanvas extends Canvas {
 
     //OnMouseMove change coordinates of selected Block in blockMemory to current X and Y. Move Animation until Block is replaced with MouseClick
     private void moveBlock(MouseEvent e) {
-        if (movementPointer != null && !currentSelector.equals("Connection") && e.isShiftDown()) {
+        if (movementPointer != null && !currentSelector.equals("Connection")) {
             movementPointer.x = (int) e.getX();
             movementPointer.y = (int) e.getY();
             movementPointer.draw(graphics);
             redrawCanvas();
         }
-        else if(currentSelector.equals("Connection") && startSelected) {
+        else if(currentSelector.equals("Connection") && startSelected ) {
             redrawCanvas();
             ((Connection)movementPointer).xEnd = (int) e.getX();
             ((Connection)movementPointer).yEnd = (int) e.getY();
@@ -155,7 +180,7 @@ public class MainCanvas extends Canvas {
     }
 
     //redraws canvas based on Blocks in blockMemory
-    public void redrawCanvas() {
+    private void redrawCanvas() {
         graphics.setFill(Color.WHITE);
         graphics.fillRect(0, 0, getWidth(), getHeight());
         for (Object block : blockMemory) {
@@ -174,7 +199,7 @@ public class MainCanvas extends Canvas {
     }
 
     //deletion function. Removes the selected block from blockMemory and redraws
-    public void deleteBlockOnMouse(Block detectedBlock) {
+    private void deleteBlockOnMouse(Block detectedBlock) {
         blockMemory.remove(detectedBlock);
     }
 
@@ -182,28 +207,25 @@ public class MainCanvas extends Canvas {
     private Block checkInside(double currentX, double currentY) {
         for (Object block : blockMemory) {
             if (block instanceof Block) {
-                if(Objects.equals(((Block) block).getType(), "Connection")) continue;
-                /*
-                    int slope = (((Connection)block).xEnd - ((Connection)block).x)/(((Connection)block).yEnd - ((Connection)block).y);
-                    int stepX = (((Connection) block).xEnd - ((Connection)block).x)/30;
-                    int stepY = (((Connection) block).yEnd - ((Connection)block).y)/30;
-                    for(int x = ((Connection)block).x; x < ((Connection)block).xEnd; x += stepX) {
-                        if(currentX >= x-stepX/2 && currentX <= x+stepX/2) {
-                            for(int y = ((Connection)block).y; y < ((Connection)block).yEnd; y += stepY) {
-                                if(currentY >= y-stepY/2 && currentY <= y+stepY) {
-                                    System.out.printf("Con");
-                                    return (Block) block;
-                                }
-                            }
-                        }
-                    }
-                }
-                else */if (currentX >= ((Block) block).x - ((Block) block).size / 2 && currentX <= ((Block) block).x + ((Block) block).size / 2 && currentY >= ((Block) block).y - ((Block) block).size / 2 && currentY <= ((Block) block).y + ((Block) block).size / 2) {
+                if (!Objects.equals(((Block) block).getType(), "Connection") && currentX >= ((Block) block).x - ((Block) block).size / 2 && currentX <= ((Block) block).x + ((Block) block).size / 2 && currentY >= ((Block) block).y - ((Block) block).size / 2 && currentY <= ((Block) block).y + ((Block) block).size / 2) {
                     return (Block) block;
                 }
             }
         }
         return null;
+    }
+
+    //refreshes the outputs of all placed blocks
+    private void refreshAllOutputs() {
+        for(int i = 0; i < 2; i++) {
+            for (Object block : blockMemory) {
+                if (block instanceof Block) {
+                    if (((Block) block).getType() != "Connection") {
+                        ((Block) block).calculateOutput();
+                    }
+                }
+            }
+        }
     }
 
     //change Current Selector. Used in later processes for Button interaction
@@ -231,20 +253,9 @@ public class MainCanvas extends Canvas {
         }
     }
 
+    //resets the canvas by deleting blockMemory and redrawing the canvas
     public void resetCanvas() {
         blockMemory.clear();
         redrawCanvas();
-    }
-
-    private void refreshAllOutputs() {
-        for(int i = 0; i < 2; i++) {
-            for (Object block : blockMemory) {
-                if (block instanceof Block) {
-                    if (((Block) block).getType() != "Connection") {
-                        ((Block) block).calculateOutput();
-                    }
-                }
-            }
-        }
     }
 }

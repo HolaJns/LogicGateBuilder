@@ -30,9 +30,28 @@ public class Connection extends Block {
 
     @Override
     public void draw(GraphicsContext gc) {
-        gc.setFill(Color.HOTPINK);
-        gc.strokeLine(x, y, xEnd, yEnd);
+        gc.setFill(Color.BLACK);
+        drawArrow(gc,x,y,xEnd,yEnd);
     }
+
+    private void drawArrow(GraphicsContext gc, double startX, double startY, double endX, double endY) {
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(2);
+        gc.strokeLine(startX, startY, endX, endY);
+        double midX = (startX + endX) / 2;
+        double midY = (startY + endY) / 2;
+        double angle = Math.atan2(endY - startY, endX - startX);
+        double arrowLength = 10;
+        double arrowAngle = Math.toRadians(45);
+        double x1 = midX - arrowLength * Math.cos(angle - arrowAngle);
+        double y1 = midY - arrowLength * Math.sin(angle - arrowAngle);
+        double x2 = midX - arrowLength * Math.cos(angle + arrowAngle);
+        double y2 = midY - arrowLength * Math.sin(angle + arrowAngle);
+
+        gc.strokeLine(midX, midY, x1, y1);
+        gc.strokeLine(midX, midY, x2, y2);
+    }
+
 
     @Override
     public String getType() {
