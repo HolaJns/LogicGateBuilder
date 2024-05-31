@@ -8,6 +8,7 @@ import javafx.scene.text.TextAlignment;
 public class Or extends Block{
     public Or(int x, int y) {
         super(x, y);
+        super.setId();
     }
 
     @Override

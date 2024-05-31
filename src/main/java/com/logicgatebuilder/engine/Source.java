@@ -10,6 +10,7 @@ public class Source extends Block {
         this.output = false;
         this.x = x;
         this.y = y;
+        super.setId();
     }
 
     @Override

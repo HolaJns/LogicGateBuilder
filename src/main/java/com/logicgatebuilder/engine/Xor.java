@@ -8,6 +8,7 @@ import javafx.scene.text.TextAlignment;
 public class Xor extends Block{
     public Xor(int x, int y) {
         super(x, y);
+        super.setId();
     }
 
     @Override

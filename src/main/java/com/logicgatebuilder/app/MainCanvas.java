@@ -7,6 +7,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -93,18 +94,17 @@ public class MainCanvas extends Canvas {
                     movementPointer = null;
                     startSelected = false;
                 }
-                if(startSelected) {
-                    redrawCanvas();
+                else if(startSelected) {
                     Block block = checkInside((int)e.getX(),(int)e.getY());
                     if(block != null) {
-                        ((Connection) movementPointer).setEnd(block);
-                        movementPointer.draw(graphics);
-                        startSelected = false;
-                        blockMemory.add(movementPointer);
-                        initConnection((Connection) movementPointer);
-                        movementPointer = null;
-                        currentSelector = "";
-                    }
+                            ((Connection) movementPointer).setEnd(block);
+                            movementPointer.draw(graphics);
+                            startSelected = false;
+                            blockMemory.add(movementPointer);
+                            initConnection((Connection) movementPointer);
+                            movementPointer = null;
+                            currentSelector = "";
+                        }
                 } else {
                     movementPointer = new Connection();
                     Block block = checkInside((int)e.getX(),(int)e.getY());
@@ -243,19 +243,25 @@ public class MainCanvas extends Canvas {
     }
 
     //returns a list of all Blocks in blockMemory using Block.toString()
-    public void listBlocks() {
+    public String listBlocks() {
+        StringBuilder oupt = new StringBuilder();
         for (Object block : blockMemory) {
             if(block instanceof Block) {
                 if(!Objects.equals(((Block) block).getType(), "Connection")) {
-                    System.out.printf(block.toString());
+                    oupt.append(block.toString() + "\n");
                 }
             }
         }
+        return oupt.toString();
     }
 
     //resets the canvas by deleting blockMemory and redrawing the canvas
     public void resetCanvas() {
         blockMemory.clear();
         redrawCanvas();
+    }
+
+    public void loadFromFile() {
+        //TODO
     }
 }

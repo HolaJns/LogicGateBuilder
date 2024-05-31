@@ -11,6 +11,7 @@ public class Not extends Block{
             this.x = x;
             this.y = y;
         }
+        super.setId();
     }
 
     @Override

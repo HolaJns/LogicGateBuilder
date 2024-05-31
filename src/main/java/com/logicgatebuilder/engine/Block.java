@@ -8,6 +8,8 @@ public abstract class Block {
     public Block input2 = null;
     public int x,y;
     public int size = 50;
+    private static int id;
+    public int blockId;
 
     public Block(int x, int y) {
         if (x != -1 && y != -1) {
@@ -41,7 +43,16 @@ public abstract class Block {
         if(this.input1 != null && this.input2 != null) calculateOutput();
     }
 
+    protected void setId() {
+        blockId = id;
+        id++;
+    }
+
     public String toString() {
-        return getType() + " [x=" + x + ", y=" + y + ", input1=" + input1 + ", input2=" + input2 + ", output=" + output + "]";
+        int inp1 = -1;
+        int inp2 = -1;
+        if(input1 != null) inp1 = input1.blockId;
+        if(input2 != null) inp2 = input2.blockId;
+        return blockId + "," + getType() + "," + x + "," + y + "," + inp1 + "," + inp2 + "," + output;
     }
 }

@@ -8,6 +8,7 @@ import javafx.scene.text.TextAlignment;
 public class Output extends Block {
     public Output(int x, int y) {
         super(x, y);
+        super.setId();
     }
 
     @Override

@@ -8,6 +8,7 @@ import javafx.scene.text.TextAlignment;
 public class Nand extends Block {
     public Nand(int x, int y) {
         super(x, y);
+        super.setId();
     }
 
     @Override

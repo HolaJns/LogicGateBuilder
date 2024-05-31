@@ -8,6 +8,7 @@ import javafx.scene.text.TextAlignment;
 public class Nor extends Block {
     public Nor(int x, int y) {
         super(x, y);
+        super.setId();
     }
 
     @Override
