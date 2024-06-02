@@ -1,11 +1,9 @@
 package com.logicgatebuilder.app;
 
 import javafx.event.ActionEvent;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 
-import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -30,9 +28,16 @@ public class Buttons extends Button {
     public void Click(ActionEvent event) {
         if(this.type.equals("Save")) {
             if (Objects.equals(Application.tf.getText(), "")) return;
-            FileGenerator fileGenerator = new FileGenerator(Application.tf.getText(),Application.canvas);
-            Application.setFile(fileGenerator);
+            FileOperator fileOperator = new FileOperator(Application.tf.getText(),Application.canvas);
+            Application.setFile(fileOperator);
             Application.file.write();
+        }
+        else if(this.type.equals("Load")) {
+            if (Objects.equals(Application.tf1.getText(), "")) return;
+            List list = FileOperator.interpet(Application.tf1.getText());
+            Application.canvas.setBlockMemory(list);
+            Application.canvas.refreshAllOutputs();
+            Application.canvas.redrawCanvas();
         }
         else if(this.type.equals("Reset")) Application.canvas.resetCanvas();
         else Application.canvas.setCurrentSelector(type);

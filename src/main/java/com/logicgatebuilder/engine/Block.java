@@ -43,7 +43,7 @@ public abstract class Block {
         if(this.input1 != null && this.input2 != null) calculateOutput();
     }
 
-    protected void setId() {
+    public void setId() {
         blockId = id;
         id++;
     }
@@ -54,5 +54,17 @@ public abstract class Block {
         if(input1 != null) inp1 = input1.blockId;
         if(input2 != null) inp2 = input2.blockId;
         return blockId + "," + getType() + "," + x + "," + y + "," + inp1 + "," + inp2 + "," + output;
+    }
+
+    public void setInput1(Block input) {
+        this.input1 = input;
+    }
+
+    public void setInput2(Block input) {
+        this.input2 = input;
+    }
+
+    public void forceID(int ID) {
+        this.blockId = ID;
     }
 }

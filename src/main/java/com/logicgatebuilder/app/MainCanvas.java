@@ -15,7 +15,7 @@ import java.util.Objects;
 public class MainCanvas extends Canvas {
     private GraphicsContext graphics;
     private String currentSelector = "";
-    public List blockMemory = new ArrayList();
+    private List blockMemory = new ArrayList();
     private Block movementPointer = null;
     private boolean startSelected = false;
 
@@ -180,7 +180,7 @@ public class MainCanvas extends Canvas {
     }
 
     //redraws canvas based on Blocks in blockMemory
-    private void redrawCanvas() {
+    public void redrawCanvas() {
         graphics.setFill(Color.WHITE);
         graphics.fillRect(0, 0, getWidth(), getHeight());
         for (Object block : blockMemory) {
@@ -216,7 +216,7 @@ public class MainCanvas extends Canvas {
     }
 
     //refreshes the outputs of all placed blocks
-    private void refreshAllOutputs() {
+    public void refreshAllOutputs() {
         for(int i = 0; i < 2; i++) {
             for (Object block : blockMemory) {
                 if (block instanceof Block) {
@@ -248,7 +248,7 @@ public class MainCanvas extends Canvas {
         for (Object block : blockMemory) {
             if(block instanceof Block) {
                 if(!Objects.equals(((Block) block).getType(), "Connection")) {
-                    oupt.append(block.toString() + "\n");
+                    oupt.append(block + "\n");
                 }
             }
         }
@@ -259,6 +259,10 @@ public class MainCanvas extends Canvas {
     public void resetCanvas() {
         blockMemory.clear();
         redrawCanvas();
+    }
+
+    public void setBlockMemory(List list) {
+        this.blockMemory = list;
     }
 
     public void loadFromFile() {
