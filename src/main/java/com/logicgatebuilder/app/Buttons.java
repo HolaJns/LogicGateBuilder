@@ -1,5 +1,6 @@
 package com.logicgatebuilder.app;
 
+import com.logicgatebuilder.engine.Block;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 
@@ -27,19 +28,25 @@ public class Buttons extends Button {
 
     public void Click(ActionEvent event) {
         if(this.type.equals("Save")) {
-            if (Objects.equals(Application.tf.getText(), "")) return;
-            FileOperator fileOperator = new FileOperator(Application.tf.getText(),Application.canvas);
-            Application.setFile(fileOperator);
-            Application.file.write();
+            save();
         }
         else if(this.type.equals("Load")) {
             if (Objects.equals(Application.tf1.getText(), "")) return;
-            List list = FileOperator.interpet(Application.tf1.getText());
+            List<Block> list = FileOperator.interpet(Application.tf1.getText());
             Application.canvas.setBlockMemory(list);
             Application.canvas.refreshAllOutputs();
             Application.canvas.redrawCanvas();
+            Application.tf.setText(Application.tf1.getText().split("/")[Application.tf1.getText().split("/").length - 1].replaceFirst(".g8",""));
+            Application.tf1.setText("");
         }
         else if(this.type.equals("Reset")) Application.canvas.resetCanvas();
         else Application.canvas.setCurrentSelector(type);
+    }
+
+    public void save() {
+        if (Objects.equals(Application.tf.getText(), "")) return;
+        FileOperator fileOperator = new FileOperator(Application.tf.getText(),Application.canvas);
+        Application.setFile(fileOperator);
+        Application.file.write();
     }
 }

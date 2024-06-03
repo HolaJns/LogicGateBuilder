@@ -1,11 +1,13 @@
 package com.logicgatebuilder.app;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -74,6 +76,14 @@ public class Application extends javafx.application.Application {
         stage.setTitle("LogicGate Builder");
         stage.setScene(scene);
         stage.show();
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if(event.isControlDown() && event.getCode().toString().equalsIgnoreCase("s")) {
+                    ((Buttons)Save).save();
+                }
+            }
+        });
     }
 
     public static void setFile(FileOperator fileOperator) {

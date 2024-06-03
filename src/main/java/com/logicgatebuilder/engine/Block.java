@@ -67,4 +67,12 @@ public abstract class Block {
     public void forceID(int ID) {
         this.blockId = ID;
     }
+
+    public static void setGlobalID(int ID) {
+        id = ID;
+    }
+
+    public static int getGlobalID() {
+        return id;
+    }
 }

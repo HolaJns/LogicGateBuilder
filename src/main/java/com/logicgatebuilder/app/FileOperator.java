@@ -16,7 +16,7 @@ public class FileOperator {
     public FileOperator(String name, MainCanvas canvas) {
         this.canvas = canvas;
         try {
-            this.file = new FileWriter("files/"+name+".lbg");
+            this.file = new FileWriter("files/"+name+".g8");
         }
         catch (IOException e) {
             System.out.println(e.getMessage());
@@ -25,11 +25,12 @@ public class FileOperator {
 
     //storing data
 
-    //translates the current canvas to a lgb file: Each line is a block; Connections are ignored; Format: "id, type, x, y, input1, input2, output"
+    //translates the current canvas to a g8 file: Each line is a block; Connections are ignored; Format: "id, type, x, y, input1, input2, output"
     public void write() {
         try {
             if(Objects.equals(canvas.listBlocks(), "")) return;
             file.write(canvas.listBlocks());
+            file.write("ID:" + Block.getGlobalID());
             file.close();
         }
         catch (IOException e) {
@@ -38,11 +39,11 @@ public class FileOperator {
     }
 
     //located an ID as String N in a provided list blocks
-    private static Block locateN(String N, List blocks) {
-        for(Object block : blocks) {
-            if(block instanceof Block) {
-                if(((Block) block).blockId == Integer.parseInt(N)) {
-                    return (Block) block;
+    private static Block locateN(String N, List<Block> blocks) {
+        for(Block block : blocks) {
+            if(block != null) {
+                if(block.blockId == Integer.parseInt(N)) {
+                    return block;
                 }
             }
         }
@@ -101,40 +102,47 @@ public class FileOperator {
     }
 
     //interprets the content of a lgb file using the provided path
-    public static List interpet(String fileName) {
-        List list = new ArrayList();
+    public static List<Block> interpet(String fileName) {
+        List<Block> list = new ArrayList<>();
         try {
-            Scanner scanner = new Scanner(new File(fileName));
-            scanner.useDelimiter("\n");
-            while (scanner.hasNext()) {
-                list.add(createBlockFromData(scanner.next().split(",")));
-            }
-            scanner.close();
-            scanner = new Scanner(new File(fileName));
-            scanner.useDelimiter("\n");
-            int iter = 0;
-            while (scanner.hasNext()) {
-                String[] currentIterItem = scanner.next().split(",");
-                if(locateN(currentIterItem[4], list) != null) {
-                    Block con = new Connection();
-                    ((Connection)con).setStart(locateN(currentIterItem[4], list));
-                    ((Block)list.get(iter)).input1 =  locateN(currentIterItem[4], list);
-                    ((Connection)con).setEnd(((Block)list.get(iter)));
-                    list.add(con);
+            if(fileName.charAt(fileName.length()-3) == '.' && fileName.charAt(fileName.length()-2) == 'g' && fileName.charAt(fileName.length()-1) == '8') {
+                Scanner scanner = new Scanner(new File(fileName));
+                scanner.useDelimiter("\n");
+                //iterates through file line by line and creates Blocks from provided data
+                while (scanner.hasNext()) {
+                    String next = scanner.next();
+                    if(!next.contains("ID")) list.add(createBlockFromData(next.split(",")));
+                    else Block.setGlobalID(Integer.parseInt(next.split(":")[1]));
                 }
-                if(locateN(currentIterItem[5], list) != null) if(!locateN(currentIterItem[5], list).getType().equals("Not")) {
-                    Block con = new Connection();
-                    ((Connection)con).setStart(locateN(currentIterItem[5], list));
-                    ((Block)list.get(iter)).input2 =  locateN(currentIterItem[5], list);
-                    ((Connection)con).setEnd(((Block)list.get(iter)));
-                    list.add(con);
+                scanner.close();
+                //creates connections between Blocks based on provided input1- and input2-ids
+                scanner = new Scanner(new File(fileName));
+                scanner.useDelimiter("\n");
+                int iter = 0;
+                while (scanner.hasNext()) {
+                    String[] currentIterItem = scanner.next().split(",");
+                    if (locateN(currentIterItem[4], list) != null) {
+                        Connection con = new Connection();
+                        con.setStart(locateN(currentIterItem[4], list));
+                        list.get(iter).setInput1(locateN(currentIterItem[4], list));
+                        con.setEnd(list.get(iter));
+                        list.add(con);
+                    }
+                    if (locateN(currentIterItem[5], list) != null) if (!locateN(currentIterItem[5], list).getType().equals("Not")) {
+                        Connection con = new Connection();
+                        con.setStart(locateN(currentIterItem[5], list));
+                        list.get(iter).setInput2(locateN(currentIterItem[5], list));
+                        con.setEnd(list.get(iter));
+                        list.add(con);
+                    }
+                    iter++;
                 }
-                iter++;
             }
             return list;
         }
         catch (Exception e) {
-            return null;
+            //if file signature does not match draw empty canvas
+            return list;
         }
     }
 }
