@@ -20,18 +20,40 @@ public class Application extends javafx.application.Application {
     private Button AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ConnectionButton, Save, Reset, Load;
     public static FileOperator file;
     public static TextField tf, tf1;
+    public GridPane grid, innerGrid;
 
     @Override
     public void start(Stage stage) throws IOException {
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(12);
+
         stage.getIcons().add(new Image("file:src/main/resources/com/logicgatebuilder/textures/app/icon.png"));
         stage.setMaxHeight(1010);
         stage.setMaxWidth(1000);
         root = new BorderPane();
         canvas = new MainCanvas();
         Scene scene = new Scene(root, 965, 950);
+        scene.setFill(Color.rgb(150,150,160));
+        stage.setTitle("LogicGate Builder");
+        stage.setScene(scene);
+        buildButtons();
+        buildTextFields();
+        buildInnerGrid();
+        buildGrid();
+        stage.show();
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                if(event.isControlDown() && event.getCode().toString().equalsIgnoreCase("s")) {
+                    ((Buttons)Save).save();
+                }
+                if(event.isControlDown() && event.getCode().toString().equalsIgnoreCase("z")) {
+                    UndoManager.undo();
+                    Application.canvas.redrawCanvas();
+                }
+            }
+        });
+    }
+
+    private void buildButtons() {
         AndButton = new Buttons("And");
         NandButton = new Buttons("Nand");
         OrButton = new Buttons("Or");
@@ -44,7 +66,12 @@ public class Application extends javafx.application.Application {
         Save = new Buttons("Save");
         Reset = new Buttons("Reset");
         Load = new Buttons("Load");
-        scene.setFill(Color.rgb(150,150,160));
+    }
+
+    private void buildGrid() {
+        grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(12);
         VBox buttonLayout = new VBox(0);
         VBox canvasLayout = new VBox(0);
         buttonLayout.setSpacing(5);
@@ -53,11 +80,16 @@ public class Application extends javafx.application.Application {
         canvasLayout.getChildren().addAll(canvas);
         canvasLayout.setPadding(new Insets(30,0,0,30));
         buttonLayout.getChildren().addAll(AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ConnectionButton);
-        GridPane innerGrid = new GridPane();
-        tf = new TextField();
-        tf.setPromptText("Save As");
-        tf1 = new TextField();
-        tf1.setPromptText("Load From");
+        grid.add(canvasLayout, 0, 0);
+        grid.add(buttonLayout, 1, 0);
+        buildButtons();
+        grid.add(innerGrid, 0, 1);
+        grid.setBackground(new Background(new BackgroundFill(Color.rgb(100,100,100),CornerRadii.EMPTY,Insets.EMPTY)));
+        root.setCenter(grid);
+    }
+
+    private void buildInnerGrid() {
+        innerGrid = new GridPane();
         innerGrid.setHgap(10);
         innerGrid.setVgap(12);
         innerGrid.add(Save, 1, 0);
@@ -68,22 +100,13 @@ public class Application extends javafx.application.Application {
         innerGrid.setAlignment(Pos.CENTER);
         innerGrid.setPadding(new Insets(15,15,15,15));
         innerGrid.setBackground(new Background(new BackgroundFill(Color.rgb(150,150,150),CornerRadii.EMPTY,Insets.EMPTY)));
-        grid.add(canvasLayout, 0, 0);
-        grid.add(buttonLayout, 1, 0);
-        grid.add(innerGrid, 0, 1);
-        grid.setBackground(new Background(new BackgroundFill(Color.rgb(100,100,100),CornerRadii.EMPTY,Insets.EMPTY)));
-        root.setCenter(grid);
-        stage.setTitle("LogicGate Builder");
-        stage.setScene(scene);
-        stage.show();
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if(event.isControlDown() && event.getCode().toString().equalsIgnoreCase("s")) {
-                    ((Buttons)Save).save();
-                }
-            }
-        });
+    }
+
+    private void buildTextFields() {
+        tf = new TextField();
+        tf.setPromptText("Save As");
+        tf1 = new TextField();
+        tf1.setPromptText("Load From");
     }
 
     public static void setFile(FileOperator fileOperator) {

@@ -33,8 +33,9 @@ public class Buttons extends Button {
         else if(this.type.equals("Load")) {
             if (Objects.equals(Application.tf1.getText(), "")) return;
             List<Block> list = FileOperator.interpet(Application.tf1.getText());
-            Application.canvas.setBlockMemory(list);
+            BlockMemory.setMemory(list);
             Application.canvas.refreshAllOutputs();
+            Application.canvas.setCurrentSelector("");
             Application.canvas.redrawCanvas();
             Application.tf.setText(Application.tf1.getText().split("/")[Application.tf1.getText().split("/").length - 1].replaceFirst(".g8",""));
             Application.tf1.setText("");

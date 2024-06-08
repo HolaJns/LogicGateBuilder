@@ -3,6 +3,9 @@ package com.logicgatebuilder.engine;
 import javafx.scene.canvas.GraphicsContext;
 
 public abstract class Block {
+    public enum types {
+        AND, NAND, OR, NOR, XOR, NOT, SOURCE, OUTPUT, CONNECTION
+    }
     public boolean output;
     public Block input1 = null;
     public Block input2 = null;
@@ -16,6 +19,7 @@ public abstract class Block {
             this.x = x;
             this.y = y;
         }
+        setId();
     }
 
     protected Block() {
