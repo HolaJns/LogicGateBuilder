@@ -223,4 +223,5 @@ public class MainCanvas extends Canvas {
         canvasOffsetY = 0;
         redrawCanvas();
     }
+
 }
