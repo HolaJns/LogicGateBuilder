@@ -1,5 +1,6 @@
 package com.logicgatebuilder.engine;
 
+import com.logicgatebuilder.app.MainCanvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -30,12 +31,12 @@ public class Connection extends Block {
 
     @Override
     public void draw(GraphicsContext gc) {
-        gc.setFill(Color.BLACK);
-        drawArrow(gc,x,y,xEnd,yEnd);
+        drawArrow(gc,x+ MainCanvas.canvasOffsetX,y+MainCanvas.canvasOffsetY,xEnd+MainCanvas.canvasOffsetX,yEnd+MainCanvas.canvasOffsetY);
     }
 
     private void drawArrow(GraphicsContext gc, double startX, double startY, double endX, double endY) {
-        gc.setStroke(Color.BLACK);
+        if(!startBlock.output) gc.setStroke(Color.BLACK);
+        else gc.setStroke(Color.LIME);
         gc.setLineWidth(2);
         gc.strokeLine(startX, startY, endX, endY);
         double midX = (startX + endX) / 2;
@@ -50,11 +51,12 @@ public class Connection extends Block {
 
         gc.strokeLine(midX, midY, x1, y1);
         gc.strokeLine(midX, midY, x2, y2);
+        gc.setStroke(Color.BLACK);
     }
 
 
     @Override
-    public String getType() {
-        return "Connection";
+    public types getType() {
+        return types.CONNECTION;
     }
 }

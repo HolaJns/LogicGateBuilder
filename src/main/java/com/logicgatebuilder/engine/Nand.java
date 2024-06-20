@@ -1,5 +1,6 @@
 package com.logicgatebuilder.engine;
 
+import com.logicgatebuilder.app.MainCanvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -16,18 +17,18 @@ public class Nand extends Block {
     }
 
     @Override
-    public String getType() {
-        return "Nand";
+    public types getType() {
+        return types.NAND;
     }
 
     @Override
     public void draw(GraphicsContext gc) {
         calculateOutput();
         gc.setFill(Color.DARKRED);
-        gc.fillRect(this.x-size/2, this.y-size/2, this.size, this.size);
+        gc.fillRect(this.x-size/2+ MainCanvas.canvasOffsetX, this.y-size/2+MainCanvas.canvasOffsetY, this.size, this.size);
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFont(Font.font("Arial", 17));
-        gc.fillText("NAND",this.x,this.y);
+        gc.fillText("NAND",this.x+MainCanvas.canvasOffsetX,this.y+MainCanvas.canvasOffsetY);
     }
 }

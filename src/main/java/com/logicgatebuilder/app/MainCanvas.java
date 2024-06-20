@@ -7,14 +7,15 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
-import java.io.FileWriter;
-import java.util.Objects;
+import java.util.Collections;
 
 public class MainCanvas extends Canvas {
     private final GraphicsContext graphics;
-    private String currentSelector = "";
+    private Block.types currentSelector = Block.types.DEFAULT;
     private Block movementPointer = null;
     private boolean startSelected = false;
+    public static int canvasOffsetX = 0, canvasOffsetY = 0, deltaX = 0, deltaY = 0;
+    private static int lastX, lastY;
 
     public MainCanvas() {
         setWidth(800);
@@ -24,148 +25,179 @@ public class MainCanvas extends Canvas {
         graphics.fillRect(0, 0, getWidth(), getHeight());
         addEventHandler(MouseEvent.MOUSE_CLICKED, this::placeBlock);
         addEventHandler(MouseEvent.MOUSE_MOVED, this::moveBlock);
+        addEventHandler(MouseEvent.MOUSE_DRAGGED, this::moveCanvas);
+        addEventHandler(MouseEvent.MOUSE_PRESSED, this::initiateCanvasMove);
     }
 
-    //Place Block on mouse click based on currentSelector String. Can be values: "Source", "Output", "And", "Nand", "Or", "Nor", "Not" or "Xor"
+    private void initiateCanvasMove(MouseEvent e) {
+        if (e.getButton() == MouseButton.SECONDARY) {
+            lastX = (int) e.getX();
+            lastY = (int) e.getY();
+        }
+    }
+
     private void placeBlock(MouseEvent e) {
-        if(!currentSelector.equals("") && !currentSelector.equals("Connection")) {
-            Block newBlock = BlockStaticFactory.create(currentSelector, (int) e.getX(), (int) e.getY(), Block.getGlobalID());
+        // check secondary key usage
+        if (e.getButton() == MouseButton.SECONDARY) {
+            // stop connection logic
+            if (currentSelector.equals(Block.types.CONNECTION)) {
+                currentSelector = Block.types.DEFAULT;
+                movementPointer = null;
+                startSelected = false;
+            }
+        }
+        // check primary key usage
+        // place block of type currentSelector if not DEFAULT or CONNECTION
+        else if (currentSelector != Block.types.DEFAULT && currentSelector != Block.types.CONNECTION) {
+            Block newBlock = BlockStaticFactory.create(currentSelector, (int) e.getX() - canvasOffsetX, (int) e.getY() - canvasOffsetY, Block.getGlobalID());
             BlockMemory.add(newBlock);
             Block removeHelper = BlockStaticFactory.create(newBlock.getType(), -1000, -1000, newBlock.blockId);
             UndoManager.addAction(removeHelper);
-            currentSelector = "";
+            currentSelector = Block.types.DEFAULT;
         }
-        else if(currentSelector.equals("Connection")) {
-                if(startSelected && e.getButton() == MouseButton.SECONDARY) {
-                    currentSelector = "";
-                    movementPointer = null;
+        // place and concat connection
+        else if (currentSelector.equals(Block.types.CONNECTION)) {
+            // if start is already selected, find end Block
+            if (startSelected) {
+                Block block = checkInside((int) e.getX(), (int) e.getY());
+                if (block != null) {
+                    ((Connection) movementPointer).setEnd(block);
+                    movementPointer.draw(graphics);
                     startSelected = false;
-                }
-                else if(startSelected) {
-                    Block block = checkInside((int)e.getX(),(int)e.getY());
-                    if(block != null) {
-                        ((Connection) movementPointer).setEnd(block);
-                        movementPointer.draw(graphics);
-                        startSelected = false;
-                        BlockMemory.add(movementPointer);
-                        initConnection((Connection) movementPointer);
-                        movementPointer = null;
-                        currentSelector = "";
-                    }
-                } else {
-                    movementPointer = new Connection();
-                    Block block = checkInside((int)e.getX(),(int)e.getY());
-                    if(block != null && !block.getType().equals("Output")) {
-                        ((Connection) movementPointer).setStart(block);
-                        startSelected = true;
-                    }
+                    BlockMemory.add(movementPointer);
+                    initConnection((Connection) movementPointer);
+                    movementPointer = null;
+                    currentSelector = Block.types.DEFAULT;
                 }
             }
-            else if(currentSelector.equals("")) {
-                initializeMovementPointer(e);
-                if(movementPointer != null) {
-                    if(e.isControlDown()) {
-                        deleteBlockOnMouse(movementPointer);
-                        for(Block block: BlockMemory.getBlocks()) {
-                            if(block != null) {
-                                if((block).getType().equals("Connection")) {
-                                    if(((Connection) block).startBlock == movementPointer ||((Connection) block).endBlock == movementPointer) {
-                                        BlockMemory.setByIndex(null,BlockMemory.getBlocks().indexOf(block));
-                                    }
-                                } else {
-                                    if(block.input1 == movementPointer) block.input1 = null;
-                                    if(block.input2 == movementPointer) block.input2 = null;
+            // if no start is selected, find one
+            else {
+                movementPointer = new Connection();
+                Block block = checkInside((int) e.getX(), (int) e.getY());
+                if (block != null && !block.getType().equals(Block.types.OUTPUT)) {
+                    ((Connection) movementPointer).setStart(block);
+                    startSelected = true;
+                }
+            }
+        }
+        // delete, swap and move logic
+        else {
+            initializeMovementPointer(e);
+            if (movementPointer != null) {
+                // delete block if control is down. Removes references and connections as well
+                if (e.isControlDown()) {
+                    deleteBlockOnMouse(movementPointer);
+                    for (Block block : BlockMemory.getBlocks()) {
+                        if (block != null) {
+                            if ((block).getType().equals(Block.types.CONNECTION)) {
+                                if (((Connection) block).startBlock == movementPointer || ((Connection) block).endBlock == movementPointer) {
+                                    BlockMemory.setByIndex(null, BlockMemory.getBlocks().indexOf(block));
                                 }
+                            } else {
+                                if (block.input1 == movementPointer) block.input1 = null;
+                                if (block.input2 == movementPointer) block.input2 = null;
                             }
                         }
-                        BlockMemory.removeBlock(null);
-                        movementPointer = null;
-                        refreshAllOutputs();
                     }
-                    else if(movementPointer.getType().equals("Source") && !e.isShiftDown() && !e.isControlDown()) {
-                        movementPointer.switchState();
-                        movementPointer = null;
-                    }
-                    else if (movementPointer != null && e.isShiftDown()) {
-                        UndoManager.addAction(BlockStaticFactory.create(movementPointer.getType(), movementPointer.x, movementPointer.y, movementPointer.blockId));
-                        BlockMemory.removeBlock(movementPointer);
-                        BlockMemory.add(movementPointer);
-                    }
-                    else movementPointer = null;
+                    BlockMemory.removeBlock(null);
+                    movementPointer = null;
+                    refreshAllOutputs();
                 }
+                // swap state of source on mouse click
+                else if (movementPointer.getType().equals(Block.types.SOURCE) && !e.isShiftDown() && !e.isControlDown()) {
+                    movementPointer.switchState();
+                    movementPointer = null;
+                }
+                // replace block if shift is down
+                else if (movementPointer != null && e.isShiftDown()) {
+                    UndoManager.addAction(BlockStaticFactory.create(movementPointer.getType(), movementPointer.x, movementPointer.y, movementPointer.blockId));
+                    BlockMemory.removeBlock(movementPointer);
+                    BlockMemory.add(movementPointer);
+                } else movementPointer = null;
             }
-            refreshAllOutputs();
-            redrawCanvas();
         }
+        refreshAllOutputs();
+        redrawCanvas();
+    }
 
-    //verify current mouse coordinates on click and sets movementPointer to selected Block, if coordinates match with a Block in BlockMemory. Else: Set movementPointer to null
     private void initializeMovementPointer(MouseEvent e) {
         Block block = checkInside((int) e.getX(), (int) e.getY());
-        if(movementPointer == null) {
+        if (movementPointer == null) {
             movementPointer = block;
         } else movementPointer = null;
     }
 
-    //OnMouseMove change coordinates of selected Block in BlockMemory to current X and Y. Move Animation until Block is replaced with MouseClick
     private void moveBlock(MouseEvent e) {
-        if (movementPointer != null && !currentSelector.equals("Connection")) {
-            movementPointer.x = (int) e.getX();
-            movementPointer.y = (int) e.getY();
+        if (movementPointer != null && currentSelector != Block.types.CONNECTION) {
+            movementPointer.x = (int) e.getX() - canvasOffsetX;
+            movementPointer.y = (int) e.getY() - canvasOffsetY;
             movementPointer.draw(graphics);
             redrawCanvas();
-        }
-        else if(currentSelector.equals("Connection") && startSelected ) {
+        } else if (currentSelector == Block.types.CONNECTION && startSelected) {
             redrawCanvas();
-            ((Connection)movementPointer).xEnd = (int) e.getX();
-            ((Connection)movementPointer).yEnd = (int) e.getY();
+            ((Connection) movementPointer).xEnd = (int) e.getX() - canvasOffsetX;
+            ((Connection) movementPointer).yEnd = (int) e.getY() - canvasOffsetY;
             movementPointer.draw(graphics);
         }
     }
 
-    //redraws canvas based on Blocks in BlockMemory
+    private void moveCanvas(MouseEvent e) {
+        if (e.getButton() == MouseButton.SECONDARY) {
+            deltaX = (int) e.getX() - lastX;
+            deltaY = (int) e.getY() - lastY;
+            canvasOffsetX += deltaX;
+            canvasOffsetY += deltaY;
+            lastX = (int) e.getX();
+            lastY = (int) e.getY();
+            redrawCanvas();
+        }
+    }
+
     public void redrawCanvas() {
         graphics.setFill(Color.WHITE);
         graphics.fillRect(0, 0, getWidth(), getHeight());
         for (Block block : BlockMemory.getBlocks()) {
-            if(block != null) {
-                if(block.getType().equals("Connection")) {
+            if (block != null) {
+                if (block.getType() == Block.types.CONNECTION) {
                     ((Connection) block).refresh();
                     block.draw(graphics);
                 }
             }
         }
         for (Block block : BlockMemory.getBlocks()) {
-            if(block != null) {
-                if(!block.getType().equals("Connection")) block.draw(graphics);
+            if (block != null) {
+                if (block.getType() != Block.types.CONNECTION) block.draw(graphics);
             }
         }
         BlockMemory.filterFillerBlocks();
     }
 
-    //deletion function. Removes the selected block from BlockMemory and redraws
     private void deleteBlockOnMouse(Block detectedBlock) {
         BlockMemory.removeBlock(detectedBlock);
         UndoManager.addAction(detectedBlock);
     }
 
-    //collision detection. Check if currentCords are within one Block in BlockMemory
     private Block checkInside(double currentX, double currentY) {
+        currentX -= canvasOffsetX;
+        currentY -= canvasOffsetY;
+        Collections.reverse(BlockMemory.getBlocks());
         for (Block block : BlockMemory.getBlocks()) {
             if (block != null) {
-                if (!Objects.equals(block.getType(), "Connection") && currentX >= block.x - block.size / 2 && currentX <= block.x + block.size / 2 && currentY >= block.y - block.size / 2 && currentY <= block.y + block.size / 2) {
+                if (block.getType() != Block.types.CONNECTION && currentX >= block.x - block.size / 2 && currentX <= block.x + block.size / 2 && currentY >= block.y - block.size / 2 && currentY <= block.y + block.size / 2) {
+                    Collections.reverse(BlockMemory.getBlocks());
                     return block;
                 }
             }
         }
+        Collections.reverse(BlockMemory.getBlocks());
         return null;
     }
 
-    //refreshes the outputs of all placed blocks
     public void refreshAllOutputs() {
-        for(int i = 0; i < 2; i++) {
+        for (int i = 0; i < 2; i++) {
             for (Block block : BlockMemory.getBlocks()) {
                 if (block != null) {
-                    if (!block.getType().equals("Connection")) {
+                    if (block.getType() != Block.types.CONNECTION) {
                         block.calculateOutput();
                     }
                 }
@@ -173,24 +205,22 @@ public class MainCanvas extends Canvas {
         }
     }
 
-    //change Current Selector. Used in later processes for Button interaction
-    public void setCurrentSelector(String currentSelector) {
+    public void setCurrentSelector(Block.types currentSelector) {
         this.currentSelector = currentSelector;
     }
 
-    //initializes connection. Startingpoint is input, Endingpoint is output
     public void initConnection(Connection connection) {
-        Block input = checkInside(connection.x, connection.y);
-        if(input == null) return;
-        Block out = checkInside(connection.xEnd, connection.yEnd);
-        if(out == null) return;
+        Block input = checkInside(connection.x + canvasOffsetX, connection.y + canvasOffsetY);
+        if (input == null) return;
+        Block out = checkInside(connection.xEnd + canvasOffsetX, connection.yEnd + canvasOffsetY);
+        if (out == null) return;
         out.setInput(input);
     }
 
-
-    //resets the canvas by deleting BlockMemory and redrawing the canvas
     public void resetCanvas() {
         BlockMemory.clear();
+        canvasOffsetX = 0;
+        canvasOffsetY = 0;
         redrawCanvas();
     }
 }

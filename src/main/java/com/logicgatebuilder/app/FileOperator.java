@@ -11,10 +11,8 @@ import java.util.Scanner;
 public class FileOperator {
 
     private FileWriter file;
-    private MainCanvas canvas;
 
-    public FileOperator(String name, MainCanvas canvas) {
-        this.canvas = canvas;
+    public FileOperator(String name) {
         try {
             this.file = new FileWriter("files/"+name+".g8");
         }
@@ -42,12 +40,12 @@ public class FileOperator {
 
     //uses an array of values to create a Block using provided values. Format: "id, type, x, y, input1, input2, output"
     private static Block createBlockFromData(String[] splitted) {
-        Block temporary =  BlockStaticFactory.create(splitted[1],Integer.valueOf(splitted[2]),Integer.valueOf(splitted[3]),Integer.parseInt(splitted[0]));
+        Block temporary =  BlockStaticFactory.create(BlockStaticFactory.translateStringToEnum(splitted[1]),Integer.valueOf(splitted[2]),Integer.valueOf(splitted[3]),Integer.parseInt(splitted[0]));
         if(splitted[1].equals("Source")) if(splitted[6].equals("true")) temporary.switchState();
         return temporary;
     }
 
-    //interprets the content of a lgb file using the provided path
+    //interprets the content of a g8 file using the provided path
     public static List<Block> interpet(String fileName) {
         List<Block> list = new ArrayList<>();
         try {
@@ -74,7 +72,7 @@ public class FileOperator {
                         con.setEnd(list.get(iter));
                         list.add(con);
                     }
-                    if (BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list) != null) if (!BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list).getType().equals("Not")) {
+                    if (BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list) != null) if (!BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list).getType().equals(Block.types.NOT)) {
                         Connection con = new Connection();
                         con.setStart(BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list));
                         list.get(iter).setInput2(BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list));

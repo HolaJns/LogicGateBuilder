@@ -35,7 +35,7 @@ public abstract class BlockMemory {
         StringBuilder output = new StringBuilder();
         for (Block block : blocks) {
             if (block != null) {
-                if (!Objects.equals(block.getType(), "Connection")) {
+                if (block.getType() != Block.types.CONNECTION) {
                     output.append(block).append("\n");
                 }
             }
@@ -57,8 +57,17 @@ public abstract class BlockMemory {
 
     public static void filterFillerBlocks() {
         for(Block b : blocks) {
-            if(b.x == -1000 || b.y == -1000) {
+            if(b != null) if(b.x == -1000 || b.y == -1000) {
                 removeBlock(b);
+            }
+        }
+    }
+
+    public static void refactor() {
+        for (Block block : blocks) {
+            if (block != null) {
+                block.x += MainCanvas.canvasOffsetX;
+                block.y += MainCanvas.canvasOffsetY;
             }
         }
     }
