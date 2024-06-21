@@ -6,6 +6,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 
 import java.util.Collections;
 
@@ -27,9 +30,11 @@ public class MainCanvas extends Canvas {
         addEventHandler(MouseEvent.MOUSE_MOVED, this::moveBlock);
         addEventHandler(MouseEvent.MOUSE_DRAGGED, this::moveCanvas);
         addEventHandler(MouseEvent.MOUSE_PRESSED, this::initiateCanvasMove);
+        redrawCanvas();
     }
 
     private void initiateCanvasMove(MouseEvent e) {
+        drawCoords(e);
         if (e.getButton() == MouseButton.SECONDARY) {
             lastX = (int) e.getX();
             lastY = (int) e.getY();
@@ -118,6 +123,7 @@ public class MainCanvas extends Canvas {
         }
         refreshAllOutputs();
         redrawCanvas();
+        drawCoords(e);
     }
 
     private void initializeMovementPointer(MouseEvent e) {
@@ -128,17 +134,31 @@ public class MainCanvas extends Canvas {
     }
 
     private void moveBlock(MouseEvent e) {
+        redrawCanvas();
         if (movementPointer != null && currentSelector != Block.types.CONNECTION) {
             movementPointer.x = (int) e.getX() - canvasOffsetX;
             movementPointer.y = (int) e.getY() - canvasOffsetY;
             movementPointer.draw(graphics);
             redrawCanvas();
         } else if (currentSelector == Block.types.CONNECTION && startSelected) {
-            redrawCanvas();
             ((Connection) movementPointer).xEnd = (int) e.getX() - canvasOffsetX;
             ((Connection) movementPointer).yEnd = (int) e.getY() - canvasOffsetY;
             movementPointer.draw(graphics);
         }
+        drawCoords(e);
+    }
+    int prevX = 0, prevY = 0;
+    public void drawCoords(MouseEvent e) {
+        int temp = String.valueOf((prevX)).length() + String.valueOf((prevY)).length();
+        graphics.setFill(Color.BLACK);
+        graphics.fillRect(32,30, 31 + 12*(temp-1),30);
+        graphics.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        graphics.setTextAlign(TextAlignment.LEFT);
+        graphics.setFill(Color.BLACK);
+        graphics.setFill(Color.WHITE);
+        graphics.fillText(prevX + ", " + prevY, 40, 50);
+        prevX = ((int)e.getX()-canvasOffsetX)/10;
+        prevY = ((int)e.getY()-canvasOffsetY)/-10;
     }
 
     private void moveCanvas(MouseEvent e) {
@@ -149,8 +169,9 @@ public class MainCanvas extends Canvas {
             canvasOffsetY += deltaY;
             lastX = (int) e.getX();
             lastY = (int) e.getY();
-            redrawCanvas();
         }
+        redrawCanvas();
+        drawCoords(e);
     }
 
     public void redrawCanvas() {
@@ -169,7 +190,6 @@ public class MainCanvas extends Canvas {
                 if (block.getType() != Block.types.CONNECTION) block.draw(graphics);
             }
         }
-        BlockMemory.filterFillerBlocks();
     }
 
     private void deleteBlockOnMouse(Block detectedBlock) {

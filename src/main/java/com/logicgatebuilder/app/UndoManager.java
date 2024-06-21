@@ -13,8 +13,10 @@ public abstract class UndoManager {
     }
 
     public static void undo() {
+        if(undoStack.isEmpty()) return;
         Block block = undoStack.pop();
         Block selected = BlockMemory.locateBlockById(block.blockId, null);
+        if(block.x == -1000) BlockMemory.removeBlock(selected);
         if(selected != null) {
             selected.setInput1(block.input1);
             selected.setInput2(block.input2);

@@ -4,7 +4,6 @@ import com.logicgatebuilder.engine.Block;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public abstract class BlockMemory {
     private static List<Block> blocks = new ArrayList<>();
@@ -53,22 +52,5 @@ public abstract class BlockMemory {
 
     public static void setMemory(List<Block> blocks) {
         BlockMemory.blocks = blocks;
-    }
-
-    public static void filterFillerBlocks() {
-        for(Block b : blocks) {
-            if(b != null) if(b.x == -1000 || b.y == -1000) {
-                removeBlock(b);
-            }
-        }
-    }
-
-    public static void refactor() {
-        for (Block block : blocks) {
-            if (block != null) {
-                block.x += MainCanvas.canvasOffsetX;
-                block.y += MainCanvas.canvasOffsetY;
-            }
-        }
     }
 }
