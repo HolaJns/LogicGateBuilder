@@ -11,6 +11,7 @@ module com.example.logicgatebuilder {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.desktop;
+    requires jdk.compiler;
 
     opens com.logicgatebuilder to javafx.fxml;
     //exports com.logicgatebuilder;

@@ -22,8 +22,11 @@ public class Output extends Block {
         gc.setFill(Color.RED);
         if(this.input1 != null) if(this.input1.output) gc.setFill(Color.LIME);
         gc.fillRect(this.x-size/2+ MainCanvas.canvasOffsetX, this.y-size/2+MainCanvas.canvasOffsetY, this.size, this.size);
+        gc.setLineWidth(1);
+        gc.setStroke(Color.BLACK);
         gc.setFill(Color.BLACK);
         gc.strokeRect(this.x-size/2+MainCanvas.canvasOffsetX, this.y-size/2+MainCanvas.canvasOffsetY, this.size, this.size);
+        drawSelectedFrame(gc);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFont(Font.font("Arial", 20));
         if(this.input1 != null) {

@@ -3,6 +3,7 @@ package com.logicgatebuilder.engine;
 import com.logicgatebuilder.app.BlockStaticFactory;
 import com.logicgatebuilder.app.MainCanvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 
 public abstract class Block {
     public enum types {
@@ -18,6 +19,7 @@ public abstract class Block {
     public int size = 50;
     private static int id;
     public int blockId;
+    public boolean moving = false;
 
     public Block(int x, int y) {
         if (x != -1 && y != -1) {
@@ -75,6 +77,14 @@ public abstract class Block {
 
     public void forceID(int ID) {
         this.blockId = ID;
+    }
+
+    public void drawSelectedFrame(GraphicsContext gc) {
+        if(moving && getType() != types.CONNECTION) {
+            gc.setLineWidth(10);
+            gc.setStroke(Color.BLACK);
+            gc.strokeRect(this.x - size / 2 + MainCanvas.canvasOffsetX, this.y - size / 2 + MainCanvas.canvasOffsetY, this.size, this.size);
+        }
     }
 
     public static void setGlobalID(int ID) {

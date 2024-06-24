@@ -30,6 +30,9 @@ public class Source extends Block {
         if(this.output) gc.setFill(Color.YELLOW);
         else gc.setFill(Color.GRAY);
         gc.fillRect(this.x-size/2+ MainCanvas.canvasOffsetX, this.y-size/2+MainCanvas.canvasOffsetY, this.size, this.size);
+        drawSelectedFrame(gc);
+        gc.setLineWidth(1);
+        gc.setStroke(Color.BLACK);
         gc.setFill(Color.BLACK);
         gc.strokeRect(this.x-size/2+MainCanvas.canvasOffsetX, this.y-size/2+MainCanvas.canvasOffsetY, this.size, this.size);
         gc.setTextAlign(TextAlignment.CENTER);

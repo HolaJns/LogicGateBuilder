@@ -16,6 +16,14 @@ public abstract class BlockMemory {
         return blocks;
     }
 
+    public static ArrayList<Block> getBlocksNoConnections() {
+        ArrayList<Block> temp = new ArrayList<>();
+        for (Block block : BlockMemory.getBlocks()) {
+            if (block.getType() != Block.types.CONNECTION) temp.add(block);
+        }
+        return temp;
+    }
+
     public static void removeBlock(Block block) {
         blocks.remove(block);
     }

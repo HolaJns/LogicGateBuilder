@@ -25,6 +25,7 @@ public class Or extends Block{
     @Override
     public void draw(GraphicsContext gc) {
         calculateOutput();
+        drawSelectedFrame(gc);
         gc.setFill(Color.BLUE);
         gc.fillRect(this.x-size/2+ MainCanvas.canvasOffsetX, this.y-size/2+MainCanvas.canvasOffsetY, this.size, this.size);
         gc.setFill(Color.WHITE);
