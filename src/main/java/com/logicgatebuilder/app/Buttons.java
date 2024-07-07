@@ -41,7 +41,6 @@ public class Buttons extends Button {
             Application.tf1.setText("");
         }
         else if(this.type.equals("Reset")) Application.canvas.resetCanvas();
-        else if(this.type.equals("Delay")) Block.delayed = !Block.delayed;
         else Application.canvas.setCurrentSelector(BlockStaticFactory.translateStringToEnum(type));
     }
 

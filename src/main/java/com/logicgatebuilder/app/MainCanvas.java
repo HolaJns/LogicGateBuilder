@@ -18,21 +18,24 @@ public class MainCanvas extends Canvas {
     private Block.types currentSelector = Block.types.DEFAULT;
     private Block movementPointer = null;
     private boolean startSelected = false;
-    public static int canvasOffsetX = 400, canvasOffsetY = 400, deltaX = 0, deltaY = 0;
+    public static int canvasSizeX = 800, canvasSizeY = 800;
+    public static int canvasOffsetX = canvasSizeX/2, canvasOffsetY = canvasSizeY/2, deltaX = 0, deltaY = 0;
     private static int lastX, lastY;
 
+
     public MainCanvas() {
-        setWidth(800);
-        setHeight(800);
+        setWidth(canvasSizeX);
+        setHeight(canvasSizeY);
         graphics = getGraphicsContext2D();
         graphics.setFill(Color.WHITE);
         graphics.fillRect(0, 0, getWidth(), getHeight());
+        MassSelector.initCanvas(this, graphics);
         addEventHandler(MouseEvent.MOUSE_CLICKED, this::clicked);
         addEventHandler(MouseEvent.MOUSE_MOVED, this::move);
         addEventHandler(MouseEvent.MOUSE_DRAGGED, this::dragging);
         addEventHandler(MouseEvent.MOUSE_PRESSED, this::initiateCanvasMove);
-        addEventHandler(MouseEvent.MOUSE_PRESSED, this::massSelectorStart);
-        addEventHandler(MouseEvent.MOUSE_RELEASED, this::massSelectorEnd);
+        addEventHandler(MouseEvent.MOUSE_PRESSED, this::pressed);
+        addEventHandler(MouseEvent.MOUSE_RELEASED, this::released);
         redrawCanvas();
     }
 
@@ -46,6 +49,25 @@ public class MainCanvas extends Canvas {
 
     private void clicked(MouseEvent e) {
         placeBlock(e);
+    }
+
+    private void move(MouseEvent e) {
+        redrawCanvas();
+        connectionMove(e);
+        drawCoords(e);
+    }
+
+    private void pressed(MouseEvent e) {
+        MassSelector.massSelectorStart(e);
+    }
+
+    private void released(MouseEvent e) {
+        MassSelector.massSelectorEnd(e);
+    }
+
+    private void dragging(MouseEvent e) {
+        if (e.getButton() == MouseButton.SECONDARY) moveCanvas(e);
+        if (e.getButton() == MouseButton.PRIMARY) MassSelector.massSelectorSelect(e);
     }
 
     private void placeBlock(MouseEvent e) {
@@ -136,12 +158,6 @@ public class MainCanvas extends Canvas {
         } else movementPointer = null;
     }
 
-    private void move(MouseEvent e) {
-        connectionMove(e);
-        redrawCanvas();
-        drawCoords(e);
-    }
-
     private void connectionMove(MouseEvent e) {
         if (currentSelector == Block.types.CONNECTION && startSelected) {
             ((Connection) movementPointer).xEnd = (int) e.getX() - canvasOffsetX;
@@ -162,82 +178,6 @@ public class MainCanvas extends Canvas {
         graphics.fillText(prevX + ", " + prevY, 40, 50);
         prevX = ((int)e.getX()-canvasOffsetX)/10;
         prevY = ((int)e.getY()-canvasOffsetY)/-10;
-    }
-
-    private void dragging(MouseEvent e) {
-        if (e.getButton() == MouseButton.SECONDARY) moveCanvas(e);
-        if (e.getButton() == MouseButton.PRIMARY) massSelectorSelect(e);
-    }
-
-    private int endMassSelectorX, endMassSelectorY;
-    private int startMassSelectorX, startMassSelectorY;
-    private ArrayList<Block> massSelect = new ArrayList<>();
-    private int initialMouseX, initialMouseY;
-    private boolean isDraggingSelection = false;
-
-    private void massSelectorStart(MouseEvent e) {
-        if (e.getButton() == MouseButton.PRIMARY && massSelect.isEmpty()) {
-            startMassSelectorX = (int) e.getX();
-            startMassSelectorY = (int) e.getY();
-        } else if (!massSelect.isEmpty() && e.getButton() == MouseButton.PRIMARY) {
-            initialMouseX = (int) e.getX();
-            initialMouseY = (int) e.getY();
-            isDraggingSelection = true;
-        }
-    }
-
-    private void massSelectorSelect(MouseEvent e) {
-        if (massSelect.isEmpty() && e.isShiftDown()) {
-            endMassSelectorX = (int) e.getX();
-            endMassSelectorY = (int) e.getY();
-            redrawCanvas();
-            graphics.setStroke(Color.BLUE);
-            graphics.setFill(Color.color(1, 1, 0, 0.5));
-
-            int x = Math.min(startMassSelectorX, endMassSelectorX);
-            int y = Math.min(startMassSelectorY, endMassSelectorY);
-            int width = Math.abs(endMassSelectorX - startMassSelectorX);
-            int height = Math.abs(endMassSelectorY - startMassSelectorY);
-
-            graphics.strokeRect(x, y, width, height);
-            graphics.fillRect(x, y, width, height);
-        } else if (isDraggingSelection) {
-            int deltaX = (int) e.getX() - initialMouseX;
-            int deltaY = (int) e.getY() - initialMouseY;
-
-            for (Block block : massSelect) {
-                block.x += deltaX;
-                block.y += deltaY;
-            }
-
-            initialMouseX = (int) e.getX();
-            initialMouseY = (int) e.getY();
-            redrawCanvas();
-        }
-        drawCoords(e);
-    }
-
-    private void massSelectorEnd(MouseEvent e) {
-        if (massSelect.isEmpty() && e.isShiftDown()) {
-            int x1 = Math.min(startMassSelectorX, endMassSelectorX) - canvasOffsetX;
-            int y1 = Math.min(startMassSelectorY, endMassSelectorY) - canvasOffsetY;
-            int x2 = Math.max(startMassSelectorX, endMassSelectorX) - canvasOffsetX;
-            int y2 = Math.max(startMassSelectorY, endMassSelectorY) - canvasOffsetY;
-
-            ArrayList<Block> temp = new ArrayList<>();
-            for (Block block : BlockMemory.getBlocks()) {
-                //if (block.x - block.size/2 >= x1 && block.x + block.size/2 <= x1 && block.y - block.size/2 >= y1 && block.y + block.size/2 <= y1 && block.x - block.size/2 <= x2 && block.x + block.size/2 >= x2 && block.y - block.size/2 <= y2 && block.y + block.size/2 >= y2) {
-                if (block.x >= x1 && block.y >= y1 && block.x <= x2 && block.y <= y2) {
-                    block.moving = true;
-                    temp.add(block);
-                }
-            }
-            massSelect = temp;
-        } else {
-            for (Block block : massSelect) block.moving = false;
-            massSelect = new ArrayList<>();
-            isDraggingSelection = false;
-        }
     }
 
     private void moveCanvas(MouseEvent e) {
@@ -342,9 +282,8 @@ public class MainCanvas extends Canvas {
     public void resetCanvas() {
         UndoManager.addAction(BlockMemory.getBlocksNoConnections());
         BlockMemory.clear();
-        canvasOffsetX = 400;
-        canvasOffsetY = 400;
+        canvasOffsetX = canvasSizeX/2;
+        canvasOffsetY = canvasSizeY/2;
         redrawCanvas();
     }
-
 }

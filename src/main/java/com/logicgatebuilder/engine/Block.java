@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 
 public abstract class Block {
     public enum types {
-        AND, NAND, OR, NOR, XOR, NOT, SOURCE, OUTPUT, CONNECTION, DEFAULT
+        AND, NAND, OR, NOR, XOR, NOT, SOURCE, OUTPUT, CONNECTION, DEFAULT, ACTIVATOR
     }
 
     public static boolean delayed = false;

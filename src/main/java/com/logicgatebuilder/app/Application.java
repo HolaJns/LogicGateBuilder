@@ -17,7 +17,7 @@ import java.io.IOException;
 public class Application extends javafx.application.Application {
     private BorderPane root;
     public static MainCanvas canvas;
-    private Button AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ConnectionButton, Save, Reset, Load;
+    private Button AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ConnectionButton, ActivatorButton, Save, Reset, Load;
     public static FileOperator file;
     public static TextField tf, tf1;
     public GridPane grid, innerGrid;
@@ -25,7 +25,7 @@ public class Application extends javafx.application.Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        stage.getIcons().add(new Image("file:src/main/resources/com/logicgatebuilder/textures/app/icon.png"));
+        stage.getIcons().add(new Image("file:src/main/resources/com/logicgatebuilder/textures/app/icon2.png"));
         stage.setMaxHeight(1010);
         stage.setMaxWidth(1000);
         root = new BorderPane();
@@ -63,6 +63,7 @@ public class Application extends javafx.application.Application {
         SourceButton = new Buttons("Source");
         OutputButton = new Buttons("Output");
         ConnectionButton = new Buttons("Connection");
+        ActivatorButton = new Buttons("Activator");
         Save = new Buttons("Save");
         Reset = new Buttons("Reset");
         Load = new Buttons("Load");
@@ -79,7 +80,7 @@ public class Application extends javafx.application.Application {
         buttonLayout.setBackground(new Background(new BackgroundFill(Color.rgb(150,150,150),CornerRadii.EMPTY,Insets.EMPTY)));
         canvasLayout.getChildren().addAll(canvas);
         canvasLayout.setPadding(new Insets(30,0,0,30));
-        buttonLayout.getChildren().addAll(AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ConnectionButton);
+        buttonLayout.getChildren().addAll(AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ActivatorButton, ConnectionButton);
         grid.add(canvasLayout, 0, 0);
         grid.add(buttonLayout, 1, 0);
         buildButtons();

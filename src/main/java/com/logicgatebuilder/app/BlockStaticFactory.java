@@ -41,6 +41,10 @@ public abstract class BlockStaticFactory {
                 temp = new Output(x,y);
                 break;
             }
+            case ACTIVATOR: {
+                temp = new Activator(x,y);
+                break;
+            }
             case CONNECTION: {
                 temp = new Connection();
             }
@@ -61,6 +65,7 @@ public abstract class BlockStaticFactory {
             case XOR: return "Xor";
             case OUTPUT: return "Output";
             case CONNECTION: return "Connection";
+            case ACTIVATOR: return "Activator";
             default: return "";
         }
     }
@@ -76,6 +81,7 @@ public abstract class BlockStaticFactory {
             case "Xor": return Block.types.XOR;
             case "Output": return Block.types.OUTPUT;
             case "Connection": return Block.types.CONNECTION;
+            case "Activator": return Block.types.ACTIVATOR;
             default: return Block.types.DEFAULT;
         }
     }
