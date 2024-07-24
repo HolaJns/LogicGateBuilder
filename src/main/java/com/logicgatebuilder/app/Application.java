@@ -4,32 +4,34 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
 public class Application extends javafx.application.Application {
     private BorderPane root;
-    public static MainCanvas canvas;
+    public static ApplicationCanvas canvas;
     private Button AndButton, NandButton, OrButton, NorButton, XorButton, NotButton, SourceButton, OutputButton, ConnectionButton, ActivatorButton, Save, Reset, Load;
     public static FileOperator file;
     public static TextField tf, tf1;
     public GridPane grid, innerGrid;
+    public static boolean darkMode = true;
+    public static boolean dynamicConnections = false;
 
     @Override
     public void start(Stage stage) throws IOException {
-
         stage.getIcons().add(new Image("file:src/main/resources/com/logicgatebuilder/textures/app/icon2.png"));
         stage.setMaxHeight(1010);
         stage.setMaxWidth(1000);
         root = new BorderPane();
-        canvas = new MainCanvas();
+        canvas = new ApplicationCanvas();
+        buildMenuBar();
         Scene scene = new Scene(root, 965, 950);
         scene.setFill(Color.rgb(150,150,160));
         stage.setTitle("LogicGate Builder");
@@ -50,6 +52,58 @@ public class Application extends javafx.application.Application {
                     Application.canvas.redrawCanvas();
                 }
             }
+        });
+    }
+
+    private void buildMenuBar() {
+        MenuBar menuBar = new MenuBar();
+        Menu file = new Menu("File");
+        Menu settings = new Menu("Settings");
+        Menu view = new Menu("View");
+        MenuItem menuItem = new MenuItem("save");
+        MenuItem menuItem1 = new MenuItem("save as");
+        MenuItem menuItem2 = new MenuItem("import");
+        MenuItem menuItem3 = new MenuItem("export");
+        MenuItem menuItem4 = new MenuItem("toggle coordinates");
+        MenuItem dark = new MenuItem("dark");
+        MenuItem light = new MenuItem("light");
+        Menu subThemes = new Menu("themes");
+        subThemes.getItems().addAll(dark, new SeparatorMenuItem(), light);
+        Menu subArrows = new Menu("arrows");
+        MenuItem dynamic = new MenuItem("dynamic");
+        MenuItem dfault = new MenuItem("static");
+        subArrows.getItems().addAll(dynamic, dfault);
+        file.getItems().addAll(menuItem, new SeparatorMenuItem(), menuItem1, new SeparatorMenuItem(), menuItem2, new SeparatorMenuItem(), menuItem3);
+        settings.getItems().addAll(menuItem4, new SeparatorMenuItem(), subThemes, new SeparatorMenuItem(), subArrows);
+        menuBar.getMenus().addAll(file, view, settings);
+        root.setTop(menuBar);
+
+        menuItem4.setOnAction(e-> {
+            canvas.cordsOff = !canvas.cordsOff;
+            canvas.redrawCanvas();
+        });
+        dark.setOnAction(e -> {
+            darkMode = true;
+            buildButtons();
+            buildInnerGrid();
+            buildGrid();
+        });
+        light.setOnAction(e -> {
+            darkMode = false;
+            buildButtons();
+            buildInnerGrid();
+            buildGrid();
+        });
+        menuItem.setOnAction(e -> {
+            FileOperator fileOperator = new FileOperator(Application.tf.getText());
+            Application.setFile(fileOperator);
+            Application.file.write();
+        });
+        dfault.setOnAction(e -> {
+            dynamicConnections = false;
+        });
+        dynamic.setOnAction(e -> {
+            dynamicConnections = true;
         });
     }
 
@@ -86,6 +140,10 @@ public class Application extends javafx.application.Application {
         buildButtons();
         grid.add(innerGrid, 0, 1);
         grid.setBackground(new Background(new BackgroundFill(Color.rgb(100,100,100),CornerRadii.EMPTY,Insets.EMPTY)));
+        if(darkMode) {
+            buttonLayout.setBackground(new Background(new BackgroundFill(Color.rgb(20,20,20),CornerRadii.EMPTY,Insets.EMPTY)));
+            grid.setBackground(new Background(new BackgroundFill(Color.rgb(20,20,20),CornerRadii.EMPTY,Insets.EMPTY)));
+        }
         root.setCenter(grid);
     }
 
@@ -101,6 +159,7 @@ public class Application extends javafx.application.Application {
         innerGrid.setAlignment(Pos.CENTER);
         innerGrid.setPadding(new Insets(15,15,15,15));
         innerGrid.setBackground(new Background(new BackgroundFill(Color.rgb(150,150,150),CornerRadii.EMPTY,Insets.EMPTY)));
+        if(darkMode) innerGrid.setBackground(new Background(new BackgroundFill(Color.rgb(20,20,20),CornerRadii.EMPTY,Insets.EMPTY)));
     }
 
     private void buildTextFields() {

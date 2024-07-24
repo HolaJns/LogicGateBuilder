@@ -1,14 +1,14 @@
 package com.logicgatebuilder.engine;
 
-import com.logicgatebuilder.app.MainCanvas;
+import com.logicgatebuilder.app.ApplicationCanvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 public class Xor extends Block{
-    public Xor(int x, int y) {
-        super(x, y);
+    public Xor(int x, int y, ApplicationCanvas canvas) {
+        super(x, y, canvas);
         super.setId();
     }
 
@@ -27,10 +27,10 @@ public class Xor extends Block{
         calculateOutput();
         drawSelectedFrame(gc);
         gc.setFill(Color.ORANGE);
-        gc.fillRect(this.x-size/2+MainCanvas.canvasOffsetX, this.y-size/2+MainCanvas.canvasOffsetY, this.size, this.size);
+        gc.fillRect(this.x-size/2+ canvas.canvasOffsetX, this.y-size/2+ canvas.canvasOffsetY, this.size, this.size);
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFont(Font.font("Arial", 17));
-        gc.fillText("XOR",this.x+ MainCanvas.canvasOffsetX,this.y+MainCanvas.canvasOffsetY);
+        gc.fillText("XOR",this.x+ canvas.canvasOffsetX,this.y+ canvas.canvasOffsetY);
     }
 }

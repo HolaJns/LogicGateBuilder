@@ -2,55 +2,61 @@ package com.logicgatebuilder.app;
 
 import com.logicgatebuilder.engine.*;
 
-public abstract class BlockStaticFactory {
+public abstract class BlockFactory {
 
-    public static Block create(Block.types type, int x, int y, int id) {
-        //x = MainCanvas.canvasOffsetX;
-        //y = MainCanvas.canvasOffsetY;
+    public static Block create(Block.types type, int x, int y, int id, ApplicationCanvas canvas) {
+        //x = ApplicationCanvas.canvasOffsetX;
+        //y = ApplicationCanvas.canvasOffsetY;
         Block temp = null;
         switch (type) {
             case SOURCE: {
-                temp = new Source(x,y);
+                temp = new Source(x,y,canvas);
                 break;
             }
             case AND: {
-                temp = new And(x,y);
+                temp = new And(x,y,canvas);
                 break;
             }
             case NAND: {
-                temp = new Nand(x,y);
+                temp = new Nand(x,y,canvas);
                 break;
             }
             case OR: {
-                temp = new Or(x,y);
+                temp = new Or(x,y,canvas);
                 break;
             }
             case NOR: {
-                temp = new Nor(x,y);
+                temp = new Nor(x,y,canvas);
                 break;
             }
             case NOT: {
-                temp = new Not(x,y);
+                temp = new Not(x,y,canvas);
                 break;
             }
             case XOR: {
-                temp = new Xor(x,y);
+                temp = new Xor(x,y,canvas);
                 break;
             }
             case OUTPUT: {
-                temp = new Output(x,y);
+                temp = new Output(x,y,canvas);
                 break;
             }
             case ACTIVATOR: {
-                temp = new Activator(x,y);
+                temp = new Activator(x,y,canvas);
                 break;
             }
             case CONNECTION: {
-                temp = new Connection();
+                temp = new Connection(canvas);
             }
             default: break;
         }
         if(temp != null) temp.forceID(id);
+        return temp;
+    }
+
+    public static Block create(Block.types type, int x, int y, int id, boolean removeFlag,ApplicationCanvas canvas) {
+        Block temp = BlockFactory.create(type, x, y, id,canvas);
+        temp.deleted = removeFlag;
         return temp;
     }
 

@@ -1,7 +1,7 @@
 package com.logicgatebuilder.engine;
 
-import com.logicgatebuilder.app.BlockStaticFactory;
-import com.logicgatebuilder.app.MainCanvas;
+import com.logicgatebuilder.app.ApplicationCanvas;
+import com.logicgatebuilder.app.BlockFactory;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -20,12 +20,15 @@ public abstract class Block {
     private static int id;
     public int blockId;
     public boolean moving = false;
+    public boolean deleted = false;
+    protected ApplicationCanvas canvas;
 
-    public Block(int x, int y) {
+    public Block(int x, int y, ApplicationCanvas canvas) {
         if (x != -1 && y != -1) {
             this.x = x;
             this.y = y;
         }
+        this.canvas = canvas;
         setId();
     }
 
@@ -64,7 +67,7 @@ public abstract class Block {
         int inp2 = -1;
         if(input1 != null) inp1 = input1.blockId;
         if(input2 != null) inp2 = input2.blockId;
-        return blockId + "," + BlockStaticFactory.translateEnumToString(getType()) + "," + x + "," + y + "," + inp1 + "," + inp2 + "," + output;
+        return blockId + "," + BlockFactory.translateEnumToString(getType()) + "," + x + "," + y + "," + inp1 + "," + inp2 + "," + output;
     }
 
     public void setInput1(Block input) {
@@ -83,7 +86,7 @@ public abstract class Block {
         if(moving && getType() != types.CONNECTION) {
             gc.setLineWidth(10);
             gc.setStroke(Color.BLACK);
-            gc.strokeRect(this.x - size / 2 + MainCanvas.canvasOffsetX, this.y - size / 2 + MainCanvas.canvasOffsetY, this.size, this.size);
+            gc.strokeRect(this.x - size / 2 + canvas.canvasOffsetX, this.y - size / 2 + canvas.canvasOffsetY, this.size, this.size);
         }
     }
 

@@ -13,17 +13,19 @@ import javafx.scene.text.TextAlignment;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class MainCanvas extends Canvas {
+public class ApplicationCanvas extends Canvas {
     private final GraphicsContext graphics;
     private Block.types currentSelector = Block.types.DEFAULT;
-    private Block movementPointer = null;
+    private Block blockPointer = null;
     private boolean startSelected = false;
-    public static int canvasSizeX = 800, canvasSizeY = 800;
-    public static int canvasOffsetX = canvasSizeX/2, canvasOffsetY = canvasSizeY/2, deltaX = 0, deltaY = 0;
-    private static int lastX, lastY;
+    public int canvasSizeX = 800, canvasSizeY = 800;
+    public int canvasOffsetX = canvasSizeX/2, canvasOffsetY = canvasSizeY/2, deltaX = 0, deltaY = 0;
+    private int lastX, lastY;
+    public boolean cordsOff = false;
+    public FileOperator save;
 
 
-    public MainCanvas() {
+    public ApplicationCanvas() {
         setWidth(canvasSizeX);
         setHeight(canvasSizeY);
         graphics = getGraphicsContext2D();
@@ -76,17 +78,17 @@ public class MainCanvas extends Canvas {
             // stop connection logic
             if (currentSelector.equals(Block.types.CONNECTION) && e.isControlDown()) {
                 currentSelector = Block.types.DEFAULT;
-                movementPointer = null;
+                blockPointer = null;
                 startSelected = false;
             }
         }
         // check primary key usage
         // place block of type currentSelector if not DEFAULT or CONNECTION
         else if (currentSelector != Block.types.DEFAULT && currentSelector != Block.types.CONNECTION) {
-            Block newBlock = BlockStaticFactory.create(currentSelector, (int) e.getX() - canvasOffsetX, (int) e.getY() - canvasOffsetY, Block.getGlobalID());
+            Block newBlock = BlockFactory.create(currentSelector, (int) e.getX() - canvasOffsetX, (int) e.getY() - canvasOffsetY, Block.getGlobalID(),this);
             BlockMemory.add(newBlock);
             ArrayList<Block> removeHelper = new ArrayList<>();
-            removeHelper.add(BlockStaticFactory.create(newBlock.getType(), -1000, -1000, newBlock.blockId));
+            removeHelper.add(BlockFactory.create(newBlock.getType(), newBlock.x, newBlock.y, newBlock.blockId, this));
             UndoManager.addAction(removeHelper);
             currentSelector = Block.types.DEFAULT;
         }
@@ -96,54 +98,54 @@ public class MainCanvas extends Canvas {
             if (startSelected) {
                 Block block = checkInside((int) e.getX(), (int) e.getY());
                 if (block != null) {
-                    ((Connection) movementPointer).setEnd(block);
-                    movementPointer.draw(graphics);
+                    ((Connection) blockPointer).setEnd(block);
+                    blockPointer.draw(graphics);
                     startSelected = false;
-                    BlockMemory.add(movementPointer);
-                    initConnection((Connection) movementPointer);
-                    movementPointer = null;
+                    BlockMemory.add(blockPointer);
+                    initConnection((Connection) blockPointer);
+                    blockPointer = null;
                     currentSelector = Block.types.DEFAULT;
                 }
             }
             // if no start is selected, find one
             else {
-                movementPointer = new Connection();
+                blockPointer = new Connection(this);
                 Block block = checkInside((int) e.getX(), (int) e.getY());
                 if (block != null && !block.getType().equals(Block.types.OUTPUT)) {
-                    ((Connection) movementPointer).setStart(block);
+                    ((Connection) blockPointer).setStart(block);
                     startSelected = true;
                 }
             }
         }
         // delete, swap and move logic
         else {
-            initializeMovementPointer(e);
-            if (movementPointer != null) {
+            initBlockPointer(e);
+            if (blockPointer != null) {
                 // delete block if control is down. Removes references and connections as well
                 if (e.isControlDown()) {
-                    deleteBlockOnMouse(movementPointer);
+                    deleteBlockOnMouse(blockPointer);
                     for (Block block : BlockMemory.getBlocks()) {
                         if (block != null) {
                             if ((block).getType().equals(Block.types.CONNECTION)) {
-                                if (((Connection) block).startBlock == movementPointer || ((Connection) block).endBlock == movementPointer) {
+                                if (((Connection) block).startBlock == blockPointer || ((Connection) block).endBlock == blockPointer) {
                                     BlockMemory.setByIndex(null, BlockMemory.getBlocks().indexOf(block));
                                 }
                             } else {
-                                if (block.input1 == movementPointer) block.input1 = null;
-                                if (block.input2 == movementPointer) block.input2 = null;
+                                if (block.input1 == blockPointer) block.input1 = null;
+                                if (block.input2 == blockPointer) block.input2 = null;
                             }
                         }
                     }
                     BlockMemory.removeBlock(null);
-                    movementPointer = null;
+                    blockPointer = null;
                     refreshAllOutputs();
                 }
                 // swap state of source on mouse click
-                else if (movementPointer.getType().equals(Block.types.SOURCE) && !e.isShiftDown() && !e.isControlDown()) {
-                    movementPointer.switchState();
-                    movementPointer = null;
+                else if (blockPointer.getType().equals(Block.types.SOURCE) && !e.isShiftDown() && !e.isControlDown()) {
+                    blockPointer.switchState();
+                    blockPointer = null;
                 }
-                else movementPointer = null;
+                else blockPointer = null;
             }
         }
         refreshAllOutputs();
@@ -151,23 +153,24 @@ public class MainCanvas extends Canvas {
         drawCoords(e);
     }
 
-    private void initializeMovementPointer(MouseEvent e) {
+    private void initBlockPointer(MouseEvent e) {
         Block block = checkInside((int) e.getX(), (int) e.getY());
-        if (movementPointer == null) {
-            movementPointer = block;
-        } else movementPointer = null;
+        if (blockPointer == null) {
+            blockPointer = block;
+        } else blockPointer = null;
     }
 
     private void connectionMove(MouseEvent e) {
         if (currentSelector == Block.types.CONNECTION && startSelected) {
-            ((Connection) movementPointer).xEnd = (int) e.getX() - canvasOffsetX;
-            ((Connection) movementPointer).yEnd = (int) e.getY() - canvasOffsetY;
-            movementPointer.draw(graphics);
+            ((Connection) blockPointer).xEnd = (int) e.getX() - canvasOffsetX;
+            ((Connection) blockPointer).yEnd = (int) e.getY() - canvasOffsetY;
+            blockPointer.draw(graphics);
         }
     }
 
     int prevX = 0, prevY = 0;
     public void drawCoords(MouseEvent e) {
+        if(cordsOff) return;
         int temp = String.valueOf((prevX)).length() + String.valueOf((prevY)).length();
         graphics.setFill(Color.BLACK);
         graphics.fillRect(32,30, 31 + 12*(temp-1),30);
@@ -193,6 +196,7 @@ public class MainCanvas extends Canvas {
 
     public void redrawCanvas() {
         graphics.setFill(Color.WHITE);
+        if(Application.darkMode) graphics.setFill(Color.web("#2c2f33"));
         graphics.fillRect(0, 0, getWidth(), getHeight());
         drawMovingGrid();
         graphics.setFill(Color.LIME);
@@ -210,17 +214,16 @@ public class MainCanvas extends Canvas {
                 if (block.getType() != Block.types.CONNECTION) block.draw(graphics);
             }
         }
+        if(cordsOff) return;
         graphics.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         graphics.setFill(Color.BLACK);
         graphics.fillRect(32,30, 31 + 12*2,30);
-        graphics.setFill(Color.WHITE);
-        graphics.setTextAlign(TextAlignment.LEFT);
-        graphics.fillText("0, 0", 40, 50);
     }
 
     private void drawMovingGrid() {
         int gridSpacing = 50;
         graphics.setStroke(Color.LIGHTGRAY);
+        if(Application.darkMode) graphics.setStroke(Color.BLACK);
         graphics.setLineWidth(1);
         int startX = canvasOffsetX % gridSpacing;
         int startY = canvasOffsetY % gridSpacing;

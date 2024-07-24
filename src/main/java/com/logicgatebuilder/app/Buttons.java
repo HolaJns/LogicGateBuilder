@@ -3,6 +3,7 @@ package com.logicgatebuilder.app;
 import com.logicgatebuilder.engine.Block;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
+import javafx.scene.paint.Color;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,9 +22,20 @@ public class Buttons extends Button {
         setHover(true);
         final String IDLE_BUTTON_STYLE = "-fx-background-color: #dddddd;";
         final String HOVERED_BUTTON_STYLE = "-fx-background-color: -fx-shadow-highlight-color, -fx-outer-border, -fx-inner-border, -fx-body-color;";
-        setStyle(IDLE_BUTTON_STYLE);
-        setOnMouseEntered(e -> setStyle(HOVERED_BUTTON_STYLE));
-        setOnMouseExited(e -> setStyle(IDLE_BUTTON_STYLE));
+        final String IDLE_BUTTON_STYLE_DARK = "-fx-background-color: #232323;";
+        final String HOVERED_BUTTON_STYLE_DARK = "-fx-background-color: #555555;";
+        if(Application.darkMode) {
+            setStyle(IDLE_BUTTON_STYLE_DARK);
+            setOnMouseEntered(e -> setStyle(HOVERED_BUTTON_STYLE_DARK));
+            setOnMouseExited(e -> setStyle(IDLE_BUTTON_STYLE_DARK));
+            setTextFill(Color.WHITE);
+        }
+        else {
+            setStyle(IDLE_BUTTON_STYLE);
+            setOnMouseEntered(e -> setStyle(HOVERED_BUTTON_STYLE));
+            setOnMouseExited(e -> setStyle(IDLE_BUTTON_STYLE));
+            setTextFill(Color.BLACK);
+        }
     }
 
     public void Click(ActionEvent event) {
@@ -41,7 +53,7 @@ public class Buttons extends Button {
             Application.tf1.setText("");
         }
         else if(this.type.equals("Reset")) Application.canvas.resetCanvas();
-        else Application.canvas.setCurrentSelector(BlockStaticFactory.translateStringToEnum(type));
+        else Application.canvas.setCurrentSelector(BlockFactory.translateStringToEnum(type));
     }
 
     public void save() {

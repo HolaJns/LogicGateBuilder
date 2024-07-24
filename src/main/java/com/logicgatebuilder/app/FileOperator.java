@@ -40,7 +40,7 @@ public class FileOperator {
 
     //uses an array of values to create a Block using provided values. Format: "id, type, x, y, input1, input2, output"
     private static Block createBlockFromData(String[] splitted) {
-        Block temporary =  BlockStaticFactory.create(BlockStaticFactory.translateStringToEnum(splitted[1]),Integer.valueOf(splitted[2]),Integer.valueOf(splitted[3]),Integer.parseInt(splitted[0]));
+        Block temporary =  BlockFactory.create(BlockFactory.translateStringToEnum(splitted[1]),Integer.valueOf(splitted[2]),Integer.valueOf(splitted[3]),Integer.parseInt(splitted[0]),Application.canvas);
         if(splitted[1].equals("Source")) if(splitted[6].equals("true")) temporary.switchState();
         return temporary;
     }
@@ -66,14 +66,14 @@ public class FileOperator {
                 while (scanner.hasNext()) {
                     String[] currentIterItem = scanner.next().split(",");
                     if (BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[4]), list) != null) {
-                        Connection con = new Connection();
+                        Connection con = new Connection(Application.canvas);
                         con.setStart(BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[4]), list));
                         list.get(iter).setInput1(BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[4]), list));
                         con.setEnd(list.get(iter));
                         list.add(con);
                     }
                     if (BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list) != null) if (!BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list).getType().equals(Block.types.NOT)) {
-                        Connection con = new Connection();
+                        Connection con = new Connection(Application.canvas);
                         con.setStart(BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list));
                         list.get(iter).setInput2(BlockMemory.locateBlockById(Integer.parseInt(currentIterItem[5]), list));
                         con.setEnd(list.get(iter));

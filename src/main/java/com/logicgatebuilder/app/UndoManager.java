@@ -22,7 +22,7 @@ public abstract class UndoManager {
         for(Block b : block) {
             if(b == null) continue;
             Block selected = BlockMemory.locateBlockById(b.blockId, null);
-            if (b.x == -1000) BlockMemory.removeBlock(selected);
+            if (b.deleted) BlockMemory.removeBlock(selected);
             if (selected != null) {
                 selected.setInput1(b.input1);
                 selected.setInput2(b.input2);
@@ -32,13 +32,13 @@ public abstract class UndoManager {
         }
         for (Block b : BlockMemory.getBlocksNoConnections()) {
             if(b.input1 != null) {
-                Connection connection = new Connection();
+                Connection connection = new Connection(Application.canvas);
                 connection.setStart(b.input1);
                 connection.setEnd(b);
                 BlockMemory.add(connection);
             }
             if(b.input2 != null) {
-                Connection connection = new Connection();
+                Connection connection = new Connection(Application.canvas);
                 connection.setStart(b.input2);
                 connection.setEnd(b);
                 BlockMemory.add(connection);

@@ -1,7 +1,6 @@
 package com.logicgatebuilder.app;
 
 import com.logicgatebuilder.engine.Block;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -15,7 +14,7 @@ public abstract class MassSelector {
     private static ArrayList<Block> massSelect = new ArrayList<>();
     private static int initialMouseX, initialMouseY;
     private static boolean isDraggingSelection = false;
-    private static MainCanvas canvas;
+    private static ApplicationCanvas canvas;
     private static GraphicsContext gc;
 
 
@@ -89,15 +88,15 @@ public abstract class MassSelector {
         }
     }
 
-    public static void initCanvas(MainCanvas cv, GraphicsContext gr) {
+    public static void initCanvas(ApplicationCanvas cv, GraphicsContext gr) {
         canvas = cv;
         gc = gr;
     }
 
-    private static ArrayList<Block> getMassSelect() {
+    public static ArrayList<Block> getMassSelect() {
         ArrayList<Block> temp = new ArrayList<>();
         for (Block block : BlockMemory.getBlocks()) {
-            Block tmp = BlockStaticFactory.create(block.getType(), block.x, block.y, block.blockId);
+            Block tmp = BlockFactory.create(block.getType(), block.x, block.y, block.blockId, canvas);
             tmp.input1 = block.input1;
             tmp.input2 = block.input2;
             tmp.output = block.output;

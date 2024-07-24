@@ -1,17 +1,18 @@
 package com.logicgatebuilder.engine;
 
-import com.logicgatebuilder.app.MainCanvas;
+import com.logicgatebuilder.app.ApplicationCanvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 public class Not extends Block{
-    public Not(int x, int y) {
+    public Not(int x, int y, ApplicationCanvas canvas) {
         if(x != -1 && y != -1) {
             this.x = x;
             this.y = y;
         }
+        this.canvas = canvas;
         super.setId();
     }
 
@@ -30,10 +31,10 @@ public class Not extends Block{
         calculateOutput();
         drawSelectedFrame(gc);
         gc.setFill(Color.GREEN);
-        gc.fillRect(this.x-size/2+ MainCanvas.canvasOffsetX, this.y-size/2+MainCanvas.canvasOffsetY, this.size, this.size);
+        gc.fillRect(this.x-size/2+ canvas.canvasOffsetX, this.y-size/2+ canvas.canvasOffsetY, this.size, this.size);
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFont(Font.font("Arial", 17));
-        gc.fillText("NOT",this.x+MainCanvas.canvasOffsetX,this.y+MainCanvas.canvasOffsetY);
+        gc.fillText("NOT",this.x+ canvas.canvasOffsetX,this.y+ canvas.canvasOffsetY);
     }
 }
