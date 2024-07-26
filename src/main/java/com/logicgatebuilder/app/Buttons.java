@@ -39,27 +39,14 @@ public class Buttons extends Button {
     }
 
     public void Click(ActionEvent event) {
-        if(this.type.equals("Save")) {
-            save();
-        }
-        else if(this.type.equals("Load")) {
-            if (Objects.equals(Application.tf1.getText(), "")) return;
-            List<Block> list = FileOperator.interpet(Application.tf1.getText());
-            BlockMemory.setMemory(list);
-            Application.canvas.refreshAllOutputs();
-            Application.canvas.setCurrentSelector(Block.types.DEFAULT);
-            Application.canvas.redrawCanvas();
-            Application.tf.setText(Application.tf1.getText().split("/")[Application.tf1.getText().split("/").length - 1].replaceFirst(".g8",""));
-            Application.tf1.setText("");
-        }
-        else if(this.type.equals("Reset")) Application.canvas.resetCanvas();
+        if(this.type.equals("Reset")) Application.canvas.resetCanvas();
         else Application.canvas.setCurrentSelector(BlockFactory.translateStringToEnum(type));
     }
 
     public void save() {
         if (Objects.equals(Application.tf.getText(), "")) return;
-        FileOperator fileOperator = new FileOperator(Application.tf.getText());
-        Application.setFile(fileOperator);
+        //FileOperator fileOperator = new FileOperator(Application.file.filesave);
+        //Application.setFile(fileOperator);
         Application.file.write();
     }
 }

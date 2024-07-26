@@ -27,7 +27,6 @@ public abstract class BlockMemory {
 
     public static void removeBlock(Block block) {
         blocks.remove(block);
-        filterConnectionsUsingInputs(block);
     }
 
     public static Block locateBlockById(int id, List<Block> list) {
@@ -62,16 +61,5 @@ public abstract class BlockMemory {
 
     public static void setMemory(List<Block> blocks) {
         BlockMemory.blocks = blocks;
-    }
-
-    public static void filterConnectionsUsingInputs(Block block) {
-        /*for (Block b : blocks) {
-            if(b.getType() == Block.types.CONNECTION) {
-                if(((Connection) b).startBlock == block || ((Connection) b).endBlock == block) {
-                    removeBlock(b);
-                    break;
-                }
-            }
-        }*/
     }
 }

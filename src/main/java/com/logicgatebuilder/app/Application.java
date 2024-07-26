@@ -9,10 +9,14 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Optional;
 
 public class Application extends javafx.application.Application {
     private BorderPane root;
@@ -45,7 +49,7 @@ public class Application extends javafx.application.Application {
             @Override
             public void handle(KeyEvent event) {
                 if(event.isControlDown() && event.getCode().toString().equalsIgnoreCase("s")) {
-                    ((Buttons)Save).save();
+                    save();
                 }
                 if(event.isControlDown() && event.getCode().toString().equalsIgnoreCase("z")) {
                     UndoManager.undo();
@@ -57,28 +61,31 @@ public class Application extends javafx.application.Application {
 
     private void buildMenuBar() {
         MenuBar menuBar = new MenuBar();
-        Menu file = new Menu("File");
+        Menu fileM = new Menu("File");
         Menu settings = new Menu("Settings");
         Menu view = new Menu("View");
-        MenuItem menuItem = new MenuItem("save");
-        MenuItem menuItem1 = new MenuItem("save as");
-        MenuItem menuItem2 = new MenuItem("import");
-        MenuItem menuItem3 = new MenuItem("export");
-        MenuItem menuItem4 = new MenuItem("toggle coordinates");
-        MenuItem dark = new MenuItem("dark");
-        MenuItem light = new MenuItem("light");
-        Menu subThemes = new Menu("themes");
+        MenuItem save = new MenuItem("Save");
+        MenuItem saveAs = new MenuItem("Save as");
+        MenuItem importP = new MenuItem("Import");
+        MenuItem rename = new MenuItem("Rename");
+        MenuItem toggleCords = new MenuItem("Toggle coordinates");
+        MenuItem dark = new MenuItem("Dark");
+        MenuItem light = new MenuItem("Light");
+        Menu subThemes = new Menu("Themes");
         subThemes.getItems().addAll(dark, new SeparatorMenuItem(), light);
-        Menu subArrows = new Menu("arrows");
-        MenuItem dynamic = new MenuItem("dynamic");
-        MenuItem dfault = new MenuItem("static");
+        Menu subArrows = new Menu("Arrows");
+        MenuItem dynamic = new MenuItem("Dynamic");
+        MenuItem dfault = new MenuItem("Static");
         subArrows.getItems().addAll(dynamic, dfault);
-        file.getItems().addAll(menuItem, new SeparatorMenuItem(), menuItem1, new SeparatorMenuItem(), menuItem2, new SeparatorMenuItem(), menuItem3);
-        settings.getItems().addAll(menuItem4, new SeparatorMenuItem(), subThemes, new SeparatorMenuItem(), subArrows);
-        menuBar.getMenus().addAll(file, view, settings);
+        fileM.getItems().addAll(save, new SeparatorMenuItem(), saveAs, new SeparatorMenuItem(), importP, new SeparatorMenuItem(), rename);
+        settings.getItems().addAll(toggleCords, new SeparatorMenuItem(), subThemes, new SeparatorMenuItem(), subArrows);
+        menuBar.getMenus().addAll(fileM, view, settings);
         root.setTop(menuBar);
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Logic Gate Files", "*.g8"));
 
-        menuItem4.setOnAction(e-> {
+        toggleCords.setOnAction(e-> {
             canvas.cordsOff = !canvas.cordsOff;
             canvas.redrawCanvas();
         });
@@ -94,16 +101,31 @@ public class Application extends javafx.application.Application {
             buildInnerGrid();
             buildGrid();
         });
-        menuItem.setOnAction(e -> {
-            FileOperator fileOperator = new FileOperator(Application.tf.getText());
-            Application.setFile(fileOperator);
-            Application.file.write();
+        save.setOnAction(e -> {
+            save();
         });
         dfault.setOnAction(e -> {
             dynamicConnections = false;
         });
         dynamic.setOnAction(e -> {
             dynamicConnections = true;
+        });
+        importP.setOnAction(e -> {
+            Application.file = new FileOperator(fileChooser.showOpenDialog(null));
+            Application.file.load();
+        });
+        rename.setOnAction(e -> {
+            if(file == null) return;
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setHeaderText(null);
+            dialog.setGraphic(null);
+            dialog.setTitle("Rename");
+            Optional<String> result = dialog.showAndWait();
+            if (result.isPresent()) {
+                file.renameTo(result.get());
+                save();
+            }
+            dialog.close();
         });
     }
 
@@ -118,9 +140,7 @@ public class Application extends javafx.application.Application {
         OutputButton = new Buttons("Output");
         ConnectionButton = new Buttons("Connection");
         ActivatorButton = new Buttons("Activator");
-        Save = new Buttons("Save");
         Reset = new Buttons("Reset");
-        Load = new Buttons("Load");
     }
 
     private void buildGrid() {
@@ -151,9 +171,7 @@ public class Application extends javafx.application.Application {
         innerGrid = new GridPane();
         innerGrid.setHgap(10);
         innerGrid.setVgap(12);
-        innerGrid.add(Save, 1, 0);
         innerGrid.add(Reset, 0, 0);
-        innerGrid.add(Load, 1, 1);
         innerGrid.add(tf, 2, 0);
         innerGrid.add(tf1, 2, 1);
         innerGrid.setAlignment(Pos.CENTER);
@@ -169,8 +187,33 @@ public class Application extends javafx.application.Application {
         tf1.setPromptText("Load From");
     }
 
-    public static void setFile(FileOperator fileOperator) {
-        file = fileOperator;
+    public void save() {
+        if(file != null) {
+            file.write();
+        }
+        else {
+            try {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                directoryChooser.setTitle("Save File As");
+                directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
+                String temp;
+                TextInputDialog dialog = new TextInputDialog();
+                dialog.setHeaderText(null);
+                dialog.setGraphic(null);
+                dialog.setTitle("Save as");
+                Optional<String> result = dialog.showAndWait();
+                dialog.close();
+                temp = directoryChooser.showDialog(null).getAbsolutePath();
+                if (result.isPresent()) {
+                    if(!result.get().isEmpty() && result != null) temp += "\\" + result.get() + ".g8";
+                } else {
+                    temp += "\\" + (int)(Math.random() * 20000) + ".g8";
+                    System.out.printf(temp);
+                }
+                file = new FileOperator(new File(temp));
+                file.write();
+            } catch (NullPointerException e) {}
+        }
     }
 
     public static void main(String[] args) {
