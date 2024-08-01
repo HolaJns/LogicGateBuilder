@@ -1,10 +1,13 @@
 package com.logicgatebuilder.engine;
 
 import com.logicgatebuilder.app.ApplicationCanvas;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 public class Not extends Block{
     public Not(int x, int y, ApplicationCanvas canvas) {

@@ -48,6 +48,9 @@ public abstract class BlockFactory {
             case CONNECTION: {
                 temp = new Connection(canvas);
             }
+            case CLOCK: {
+                temp = new Clock(x, y, 1000, canvas);
+            }
             default: break;
         }
         if(temp != null) temp.forceID(id);
@@ -62,32 +65,34 @@ public abstract class BlockFactory {
 
     public static String translateEnumToString(Block.types block) {
         switch (block) {
-            case SOURCE: return "Source";
-            case AND: return "And";
-            case NAND: return "Nand";
-            case OR: return "Or";
-            case NOR: return "Nor";
-            case NOT: return "Not";
-            case XOR: return "Xor";
-            case OUTPUT: return "Output";
-            case CONNECTION: return "Connection";
-            case ACTIVATOR: return "Activator";
+            case SOURCE: return "SRC";
+            case AND: return "AND";
+            case NAND: return "NAND";
+            case OR: return "OR";
+            case NOR: return "NOR";
+            case NOT: return "NOT";
+            case XOR: return "XOR";
+            case OUTPUT: return "OUT";
+            case CONNECTION: return "CON";
+            case ACTIVATOR: return "1";
+            case CLOCK: return "CLK";
             default: return "";
         }
     }
 
     public static Block.types translateStringToEnum(String type) {
         switch (type) {
-            case "Source": return Block.types.SOURCE;
-            case "And": return Block.types.AND;
-            case "Nand": return Block.types.NAND;
-            case "Or": return Block.types.OR;
-            case "Nor": return Block.types.NOR;
-            case "Not": return Block.types.NOT;
-            case "Xor": return Block.types.XOR;
-            case "Output": return Block.types.OUTPUT;
-            case "Connection": return Block.types.CONNECTION;
-            case "Activator": return Block.types.ACTIVATOR;
+            case "SRC": return Block.types.SOURCE;
+            case "AND": return Block.types.AND;
+            case "NAND": return Block.types.NAND;
+            case "OR": return Block.types.OR;
+            case "NOR": return Block.types.NOR;
+            case "NOT": return Block.types.NOT;
+            case "XOR": return Block.types.XOR;
+            case "OUT": return Block.types.OUTPUT;
+            case "CON": return Block.types.CONNECTION;
+            case "1": return Block.types.ACTIVATOR;
+            case "CLK": return Block.types.CLOCK;
             default: return Block.types.DEFAULT;
         }
     }

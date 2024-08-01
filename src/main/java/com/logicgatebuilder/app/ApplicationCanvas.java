@@ -12,6 +12,8 @@ import javafx.scene.text.TextAlignment;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ApplicationCanvas extends Canvas {
     private final GraphicsContext graphics;
@@ -22,7 +24,8 @@ public class ApplicationCanvas extends Canvas {
     public int canvasOffsetX = canvasSizeX/2, canvasOffsetY = canvasSizeY/2, deltaX = 0, deltaY = 0;
     private int lastX, lastY;
     public boolean cordsOff = false;
-    public FileOperator save;
+    public TimerManager timer;
+
 
 
     public ApplicationCanvas() {
@@ -39,10 +42,11 @@ public class ApplicationCanvas extends Canvas {
         addEventHandler(MouseEvent.MOUSE_PRESSED, this::pressed);
         addEventHandler(MouseEvent.MOUSE_RELEASED, this::released);
         redrawCanvas();
+        timer = new TimerManager();
     }
 
     private void initiateCanvasMove(MouseEvent e) {
-        drawCoords(e);
+        setPrev(e.getX(),e.getY());
         if (e.getButton() == MouseButton.SECONDARY) {
             lastX = (int) e.getX();
             lastY = (int) e.getY();
@@ -55,8 +59,8 @@ public class ApplicationCanvas extends Canvas {
 
     private void move(MouseEvent e) {
         redrawCanvas();
-        connectionMove(e);
-        drawCoords(e);
+        connectionMove(e.getX(),e.getY(), true);
+        setPrev(e.getX(),e.getY());
     }
 
     private void pressed(MouseEvent e) {
@@ -114,6 +118,7 @@ public class ApplicationCanvas extends Canvas {
                 if (block != null && !block.getType().equals(Block.types.OUTPUT)) {
                     ((Connection) blockPointer).setStart(block);
                     startSelected = true;
+                    ((Connection)blockPointer).setEnd(e.getX() - canvasOffsetX, e.getY() - canvasOffsetY);
                 }
             }
         }
@@ -138,7 +143,7 @@ public class ApplicationCanvas extends Canvas {
                     }
                     BlockMemory.removeBlock(null);
                     blockPointer = null;
-                    refreshAllOutputs();
+                    //refreshAllOutputs();
                 }
                 // swap state of source on mouse click
                 else if (blockPointer.getType().equals(Block.types.SOURCE) && !e.isShiftDown() && !e.isControlDown()) {
@@ -148,9 +153,9 @@ public class ApplicationCanvas extends Canvas {
                 else blockPointer = null;
             }
         }
-        refreshAllOutputs();
+        //refreshAllOutputs();
         redrawCanvas();
-        drawCoords(e);
+        setPrev(e.getX(),e.getY());
     }
 
     private void initBlockPointer(MouseEvent e) {
@@ -160,16 +165,19 @@ public class ApplicationCanvas extends Canvas {
         } else blockPointer = null;
     }
 
-    private void connectionMove(MouseEvent e) {
-        if (currentSelector == Block.types.CONNECTION && startSelected) {
-            ((Connection) blockPointer).xEnd = (int) e.getX() - canvasOffsetX;
-            ((Connection) blockPointer).yEnd = (int) e.getY() - canvasOffsetY;
-            blockPointer.draw(graphics);
-        }
+
+    private void connectionMove(double x, double y, boolean activator) {
+            if (currentSelector == Block.types.CONNECTION && startSelected) {
+                if (activator) {
+                    ((Connection) blockPointer).xEnd = (int) x - canvasOffsetX;
+                    ((Connection) blockPointer).yEnd = (int) y - canvasOffsetY;
+                    blockPointer.draw(graphics);
+                } else blockPointer.draw(graphics);
+            }
     }
 
     int prevX = 0, prevY = 0;
-    public void drawCoords(MouseEvent e) {
+    private void drawCoords() {
         if(cordsOff) return;
         int temp = String.valueOf((prevX)).length() + String.valueOf((prevY)).length();
         graphics.setFill(Color.BLACK);
@@ -179,8 +187,11 @@ public class ApplicationCanvas extends Canvas {
         graphics.setFill(Color.BLACK);
         graphics.setFill(Color.WHITE);
         graphics.fillText(prevX + ", " + prevY, 40, 50);
-        prevX = ((int)e.getX()-canvasOffsetX)/10;
-        prevY = ((int)e.getY()-canvasOffsetY)/-10;
+    }
+
+    public void setPrev(double x, double y) {
+        prevX = ((int)x-canvasOffsetX)/10;
+        prevY = ((int)y-canvasOffsetY)/10;
     }
 
     private void moveCanvas(MouseEvent e) {
@@ -191,10 +202,11 @@ public class ApplicationCanvas extends Canvas {
         lastX = (int) e.getX();
         lastY = (int) e.getY();
         redrawCanvas();
-        drawCoords(e);
+        setPrev(e.getX(), e.getY());
     }
 
     public void redrawCanvas() {
+        //refreshAllOutputs();
         graphics.setFill(Color.WHITE);
         if(Application.darkMode) graphics.setFill(Color.web("#2c2f33"));
         graphics.fillRect(0, 0, getWidth(), getHeight());
@@ -214,10 +226,13 @@ public class ApplicationCanvas extends Canvas {
                 if (block.getType() != Block.types.CONNECTION) block.draw(graphics);
             }
         }
+        connectionMove(0,0,false);
         if(cordsOff) return;
         graphics.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         graphics.setFill(Color.BLACK);
         graphics.fillRect(32,30, 31 + 12*2,30);
+        setPrev(prevX, prevY);
+        drawCoords();
     }
 
     private void drawMovingGrid() {

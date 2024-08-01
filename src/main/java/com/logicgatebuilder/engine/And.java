@@ -1,10 +1,20 @@
 package com.logicgatebuilder.engine;
 
 import com.logicgatebuilder.app.ApplicationCanvas;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
+
+import javax.swing.Timer;
+
+import java.awt.event.ActionEvent;
+
+import java.awt.event.ActionListener;
 
 public class And extends Block{
     public And(int x, int y, ApplicationCanvas canvas) {
@@ -14,7 +24,9 @@ public class And extends Block{
 
     @Override
     public void calculateOutput() {
-        if(input1 != null && input2 != null) output = input1.output && input2.output;
+        if (input1 != null && input2 != null) {
+            output = input1.output && input2.output;
+        }
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.logicgatebuilder.app;
 
 import com.logicgatebuilder.engine.Block;
-import com.logicgatebuilder.engine.Connection;
 
 import java.util.ArrayList;
 import java.util.List;

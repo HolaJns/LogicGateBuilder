@@ -31,6 +31,7 @@ public abstract class MassSelector {
 
     public static void massSelectorSelect(MouseEvent e) {
         if (massSelect.isEmpty() && e.isShiftDown()) {
+            canvas.timer.stop();
             endMassSelectorX = (int) e.getX();
             endMassSelectorY = (int) e.getY();
             canvas.redrawCanvas();
@@ -57,7 +58,7 @@ public abstract class MassSelector {
             initialMouseY = (int) e.getY();
             canvas.redrawCanvas();
         }
-        canvas.drawCoords(e);
+        canvas.setPrev(e.getX(),e.getY());
     }
 
     public static void massSelectorEnd(MouseEvent e) {
@@ -85,6 +86,7 @@ public abstract class MassSelector {
             for (Block block : massSelect) block.moving = false;
             massSelect = new ArrayList<>();
             isDraggingSelection = false;
+            canvas.timer.start();
         }
     }
 

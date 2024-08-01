@@ -45,14 +45,14 @@ public class FileOperator {
                 Application.canvas
         );
 
-        if (splitted[1].equals("Source") && splitted[6].equals("true")) {
+        if (splitted[1].equals("SOURCE") && splitted[6].equals("true")) {
             temporary.switchState();
         }
         return temporary;
     }
 
     // Interprets the content of a g8 file using the provided path
-    public List<Block> interpret() {
+    private List<Block> interpret() {
         List<Block> list = new ArrayList<>();
         try (Scanner scanner = new Scanner(filesave)) {
             scanner.useDelimiter("\n");
@@ -103,7 +103,7 @@ public class FileOperator {
 
     public void load() {
         BlockMemory.setMemory(interpret());
-        Application.canvas.refreshAllOutputs();
+        //Application.canvas.refreshAllOutputs();
         Application.canvas.setCurrentSelector(Block.types.DEFAULT);
         Application.canvas.redrawCanvas();
     }
@@ -113,5 +113,9 @@ public class FileOperator {
         String pathWithoutFileName = filesave.getParent();
         this.filesave = new File(pathWithoutFileName + "/" + name + ".g8");
         oldFile.delete();
+    }
+
+    public String getName() {
+        return filesave.getName();
     }
 }

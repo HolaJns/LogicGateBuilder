@@ -34,6 +34,11 @@ public class Connection extends Block {
             this.yEnd = endBlock.y;
     }
 
+    public void setEnd(double x, double y) {
+        this.xEnd = (int) x;
+        this.yEnd = (int) y;
+    }
+
     @Override
     public void draw(GraphicsContext gc) {
         if (startBlock != null && startBlock.deleted) return;
@@ -90,5 +95,9 @@ public class Connection extends Block {
     @Override
     public types getType() {
         return types.CONNECTION;
+    }
+
+    public boolean hasEnd() {
+        return endBlock != null;
     }
 }
