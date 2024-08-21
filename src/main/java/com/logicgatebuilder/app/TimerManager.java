@@ -24,9 +24,7 @@ public class TimerManager {
     }
 
     private void update() {
-        for (Block block : BlockMemory.getBlocks()) {
-            block.calculateOutput();
-        }
+        Application.canvas.refreshAllOutputs();
         Application.canvas.redrawCanvas();
     }
 

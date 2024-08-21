@@ -24,9 +24,16 @@ public class And extends Block{
 
     @Override
     public void calculateOutput() {
-        if (input1 != null && input2 != null) {
-            output = input1.output && input2.output;
+        if (isCalculating) {
+            return;
         }
+        isCalculating = true;
+        Timeline delayTimeline = new Timeline(new KeyFrame(Duration.millis(delay), event -> {
+            if (input1 != null && input2 != null) output = input1.output && input2.output;
+            isCalculating = false;
+        }));
+        delayTimeline.setCycleCount(1);
+        delayTimeline.play();
     }
 
     @Override

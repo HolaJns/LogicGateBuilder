@@ -5,8 +5,6 @@ import com.logicgatebuilder.engine.*;
 public abstract class BlockFactory {
 
     public static Block create(Block.types type, int x, int y, int id, ApplicationCanvas canvas) {
-        //x = ApplicationCanvas.canvasOffsetX;
-        //y = ApplicationCanvas.canvasOffsetY;
         Block temp = null;
         switch (type) {
             case SOURCE: {
@@ -54,12 +52,6 @@ public abstract class BlockFactory {
             default: break;
         }
         if(temp != null) temp.forceID(id);
-        return temp;
-    }
-
-    public static Block create(Block.types type, int x, int y, int id, boolean removeFlag,ApplicationCanvas canvas) {
-        Block temp = BlockFactory.create(type, x, y, id,canvas);
-        temp.deleted = removeFlag;
         return temp;
     }
 

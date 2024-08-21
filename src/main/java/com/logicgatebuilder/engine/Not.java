@@ -21,7 +21,16 @@ public class Not extends Block{
 
     @Override
     public void calculateOutput() {
-        if(input1 != null) this.output = !this.input1.output;
+        if (isCalculating) {
+            return;
+        }
+        isCalculating = true;
+        Timeline delayTimeline = new Timeline(new KeyFrame(Duration.millis(delay), event -> {
+            if(input1 != null) this.output = !this.input1.output;
+            isCalculating = false;
+        }));
+        delayTimeline.setCycleCount(1);
+        delayTimeline.play();
     }
 
     @Override

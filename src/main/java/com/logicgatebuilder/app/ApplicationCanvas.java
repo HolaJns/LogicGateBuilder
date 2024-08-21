@@ -10,10 +10,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class ApplicationCanvas extends Canvas {
     private final GraphicsContext graphics;
@@ -273,14 +270,34 @@ public class ApplicationCanvas extends Canvas {
         return null;
     }
 
+    private void refreshBlockOutputs(Block block, Set<Block> visited, Stack<Block> recursionStack) {
+        if (block == null || block.getType() == Block.types.CONNECTION || recursionStack.contains(block)) {
+            return;
+        }
+
+        recursionStack.push(block);
+
+        if (block.input1 != null) {
+            refreshBlockOutputs(block.input1, visited, recursionStack);
+        }
+        if (block.input2 != null) {
+            refreshBlockOutputs(block.input2, visited, recursionStack);
+        }
+
+        if (!visited.contains(block)) {
+            block.calculateOutput();
+            visited.add(block);
+        }
+
+        recursionStack.pop();
+    }
+
     public void refreshAllOutputs() {
-        for (int i = 0; i < 2; i++) {
-            for (Block block : BlockMemory.getBlocks()) {
-                if (block != null) {
-                    if (block.getType() != Block.types.CONNECTION) {
-                        block.calculateOutput();
-                    }
-                }
+        Set<Block> visited = new HashSet<>();
+        Stack<Block> recursionStack = new Stack<>();
+        for (Block block : BlockMemory.getBlocks()) {
+            if (block != null) {
+                refreshBlockOutputs(block, visited, recursionStack);
             }
         }
     }

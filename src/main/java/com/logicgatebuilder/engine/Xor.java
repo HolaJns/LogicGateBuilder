@@ -1,10 +1,13 @@
 package com.logicgatebuilder.engine;
 
 import com.logicgatebuilder.app.ApplicationCanvas;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 public class Xor extends Block{
     public Xor(int x, int y, ApplicationCanvas canvas) {
@@ -14,7 +17,16 @@ public class Xor extends Block{
 
     @Override
     public void calculateOutput() {
-        if(input1 != null && input2 != null) this.output = (this.input1.output ^ input2.output);
+        if (isCalculating) {
+            return;
+        }
+        isCalculating = true;
+        Timeline delayTimeline = new Timeline(new KeyFrame(Duration.millis(delay), event -> {
+            if(input1 != null && input2 != null) this.output = (this.input1.output ^ input2.output);
+            isCalculating = false;
+        }));
+        delayTimeline.setCycleCount(1);
+        delayTimeline.play();
     }
 
     @Override

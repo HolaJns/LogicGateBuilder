@@ -2,8 +2,11 @@ package com.logicgatebuilder.engine;
 
 import com.logicgatebuilder.app.ApplicationCanvas;
 import com.logicgatebuilder.app.BlockFactory;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public abstract class Block {
     public enum types {
@@ -11,7 +14,7 @@ public abstract class Block {
     }
 
     public static boolean delayed = false;
-    public static int delay = 100;
+    public static int delay = 50;
     public boolean output;
     public Block input1 = null;
     public Block input2 = null;
@@ -22,6 +25,7 @@ public abstract class Block {
     public boolean moving = false;
     public boolean deleted = false;
     protected ApplicationCanvas canvas;
+    public boolean isCalculating = false;
 
     public Block(int x, int y, ApplicationCanvas canvas) {
         if (x != -1 && y != -1) {
